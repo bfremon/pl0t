@@ -1,1 +1,1 @@
-Simple log module
+Wrapper & convenience funcs for seaborn

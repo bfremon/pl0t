@@ -21,16 +21,20 @@ def hist(*datas, labels=None,  palette=palette):
     sns.histplot(data=long_df, x='value', hue='variable',
                   palette=palette)
 
+    
 def vline(x):
     '''Plot a vertical line'''
     plt.axvline(x)
+
     
-def ps():
+def shw():
     plt.show()
 
+    
 def cls():
     plt.close()
 
+    
 if __name__ == '__main__':
     import numpy as np
     x1 = np.random.normal(10, 1, 10**5)

@@ -82,11 +82,11 @@ if __name__ == '__main__':
         set_build()
     else:
         setuptools.setup (
-            name = 'Log', 
+            name = 'pl0t', 
             version = get_version(),
             author = 'Benoit FREMON', 
             author_email = 'ben@in.volution.fr',
-            description = 'simple logging module',
+            description = 'Wrapper & convenience funcs for seaborn',
             long_description_content_type = 'text/markdown',
             url = 'https://dev.volution.fr',
             packages = setuptools.find_packages(),

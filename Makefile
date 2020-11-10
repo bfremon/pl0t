@@ -9,12 +9,12 @@ packages = python3-pip
 test:
 	$(python3) -m unittest discover
 
-pip: README.md setup.py .VERSION LICENCE Log/__init__.py pre
+pip: README.md setup.py .VERSION LICENCE pl0t/__init__.py pre
 	$(python3) ./setup.py --set-build
 	$(pip) install .
 
 clean:
-	$(rm) __pycache__ Log/__pycache__  Log/tests/__pycache__
+	$(rm) __pycache__ pl0t/__pycache__  pl0t/tests/__pycache__
 
 pre:
 	$(sudo) $(apt_install) python3-pip
