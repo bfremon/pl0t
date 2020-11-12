@@ -3,3 +3,4 @@
 \.~*
 __pycache__/
 pl0t/__pycache__/
+.VERSION
