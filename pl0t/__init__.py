@@ -22,14 +22,23 @@ def hist(*datas, labels=None, stat='count', palette=palette):
                   stat=stat, palette=palette)
 
     
-def vline(x):
-    '''Plot a vertical line'''
-    plt.axvline(x)
-
+def vline(x, color='r', **args):
+    '''Plot a vertical line
+    color: matplotlib color of vertical line
+    *args: other axvline() params
+    '''
     
+    if color:
+        plt.axvline(x, color=color, **args)
+    else:
+        plt.axvline(x, **args)
+
+        
 def shw():
+    ''' To display current graph'''
     plt.show()
 
     
 def cls():
+    '''To close current graph'''
     plt.close()
