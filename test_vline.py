@@ -16,3 +16,6 @@ cls()
 hist(x1)
 vline(15, color='r', ls='dashed')
 shw()
+
+hline(2)
+shw()
