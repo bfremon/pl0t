@@ -6,7 +6,7 @@ pip = /usr/bin/pip3
 
 packages = python3-pip
 
-test:
+test: clean
 	$(python3) -m unittest discover
 
 pip: README.md setup.py .VERSION LICENCE pl0t/__init__.py pre
@@ -14,7 +14,7 @@ pip: README.md setup.py .VERSION LICENCE pl0t/__init__.py pre
 	$(pip) install .
 
 clean:
-	$(rm) __pycache__ pl0t/__pycache__  pl0t/tests/__pycache__
+	$(rm) __pycache__ pl0t/__pycache__  pl0t/tests/__pycache__ *.png
 
 pre:
 	$(sudo) $(apt_install) python3-pip
