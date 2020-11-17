@@ -10,12 +10,14 @@ x1 = np.random.normal(10, 1, 10**5)
 
 hist(x1)
 vline(15, color='y')
-shw()
+save()
 cls()
 
 hist(x1)
 vline(15, color='r', ls='dashed')
-shw()
+save()
+cls()
 
 hline(2)
-shw()
+save()
+cls()

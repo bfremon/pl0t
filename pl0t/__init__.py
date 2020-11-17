@@ -3,6 +3,9 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+import string
+import random
+import os
 
 palette = 'deep'
 
@@ -22,7 +25,7 @@ def hist(*datas, labels=None, stat='count', palette=palette, **args):
                   stat=stat, palette=palette)
 
 def bplt(*datas):
-    sns.boxplot(*datas)
+    sns.boxplot(data=datas)
     
 def vline(x, color='r', **args):
     '''Plot a vertical line going through x
@@ -46,13 +49,51 @@ def hline(y, color='b', **args):
 
 def scatter(*datas):
     sns.scatterplot(*datas, **args)
-
         
 def shw():
     ''' To display current graph'''
     plt.show()
-
     
 def cls():
     '''To close current graph'''
     plt.close()
+
+def save(fname=None, dest_dir=None, dpi=300, ext='.png'):
+    filename = ''
+    destdir = os.getcwd()
+    if not fname:
+        for i in range(15):
+            filename += random.choice(string.ascii_letters)
+    else:
+        filename = fname
+    if dest_dir:
+        destdir = destdir
+    plt.savefig(os.path.join(destdir, filename + ext), dpi=dpi)
+
+def _is_dict(k):
+    if isinstance(k, dict):
+        return True
+    return False
+    
+def _parse_datas(*datas, labels=None, cat=None):
+    '''
+    Verify that *datas is either a DataFrame or 
+    a series of 1D vectors (np.array() or lists).
+    Return formatted input for plotting
+    '''
+    ret = None
+    if len(datas) == 1:
+        if isinstance(datas[0], pd.DataFrame):
+            if not cat:
+                raise SyntaxError('cat key needed')
+            if not cat in datas[0].columns:
+                raise SyntaxError('cat key not in DataFrame columns')
+        if _is_dict(datas[0]):
+            raise SyntaxError('Only 1D datatypes accepted (no dict)')
+        return datas[0]
+    else:
+        for k in datas:
+            if isinstance(datas, pd.Dataframe):
+                raise SyntaxError('Only one DataFrame accepted')
+            elif _is_dict(k):
+                raise SyntaxError('Only 1D datatypes accepted (no dict)')
