@@ -74,12 +74,16 @@ def _is_dict(k):
     if isinstance(k, dict):
         return True
     return False
+
+def _no_dict_allowed():
+    raise SyntaxError('Only 1D datatypes accepted (no dict)')
     
 def _parse_datas(*datas, labels=None, cat=None):
     '''
     Verify that *datas is either a DataFrame or 
     a series of 1D vectors (np.array() or lists).
-    Return formatted input for plotting
+    Return formatted input for plotting 
+    using identifiers given by labels or randomly specified
     '''
     ret = None
     if len(datas) == 1:
@@ -89,11 +93,25 @@ def _parse_datas(*datas, labels=None, cat=None):
             if not cat in datas[0].columns:
                 raise SyntaxError('cat key not in DataFrame columns')
         if _is_dict(datas[0]):
-            raise SyntaxError('Only 1D datatypes accepted (no dict)')
-        return datas[0]
+            _no_dict_allowed()    
+        ret = datas[0]
     else:
         for k in datas:
-            if isinstance(datas, pd.Dataframe):
+            if isinstance(k, pd.DataFrame):
                 raise SyntaxError('Only one DataFrame accepted')
             elif _is_dict(k):
-                raise SyntaxError('Only 1D datatypes accepted (no dict)')
+                _no_dict_allowed()
+        if labels:
+            labs = labels
+            if len(labels) != len(datas):
+                raise SyntaxError('%i labels given, %i needed'
+                                  % (len(labels), len(datas)))
+        else:
+            labs = [ i for i in range(1, len(datas) + 1) ]
+        r = {}
+        i = 0
+        for k in datas:
+            r[labs[i]] = list(k)
+            i += 1
+        ret = pd.DataFrame(r)
+    return ret
