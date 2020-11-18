@@ -58,6 +58,9 @@ def cls():
     '''To close current graph'''
     plt.close()
 
+def title(title):
+    plt.title(title)
+    
 def save(fname=None, dest_dir=None, dpi=300, ext='.png'):
     filename = ''
     destdir = os.getcwd()

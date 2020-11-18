@@ -9,15 +9,18 @@ from pl0t import *
 x1 = np.random.normal(10, 1, 10**5)
 
 hist(x1)
+title('Vertical yellow line at x = 15')
 vline(15, color='y')
 save()
 cls()
 
 hist(x1)
+title('Vertical dashed red line at x = 15')
 vline(15, color='r', ls='dashed')
 save()
 cls()
 
+title('Horizontal line at y = 2')
 hline(2)
 save()
 cls()
