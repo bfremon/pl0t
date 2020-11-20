@@ -47,7 +47,8 @@ def hline(y, color='b', **args):
     else:
         plt.axhline(y, **args)
 
-def scatter(*datas):
+def scatter(*datas, cat=None, labels=None, **args):
+    '''Plot a scatter plot'''
     sns.scatterplot(*datas, **args)
         
 def shw():
