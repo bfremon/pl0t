@@ -6,26 +6,142 @@ import pandas as pd
 import numpy as np
 
 class test_pl0t(unittest.TestCase):
-    def test__parse_datas(self):
-        d = {}
-        s1 = [4, 5, 6]
-        s2 = [1, 3, 4]
-        self.assertRaises(SyntaxError, pl0t._parse_datas, d)
+    def test_prepare_data(self):
+        # no empty data allowed
+        self.assertRaises(SyntaxError, pl0t._prepare_data, None)
+        self.assertRaises(SyntaxError, pl0t._prepare_data, '')
+        self.assertRaises(SyntaxError, pl0t._prepare_data, [])
+        self.assertRaises(SyntaxError, pl0t._prepare_data, {})
+        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame({}))
+        self.assertRaises(SyntaxError, pl0t._prepare_data, np.array([]))
+
+        # no 1D / nD (n >= 2) data mixing 
+        d =  {'a': [1, 2, 3]}
+        self.assertRaises(SyntaxError, pl0t._prepare_data, [1, 2, 3], d)
+        self.assertRaises(SyntaxError, pl0t._prepare_data, [1, 2, 3], pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prepare_data, d, d)
+        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d), pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prepare_data, [1, 2, 3], d, pd.DataFrame(d))
+
+        self.assertRaises(SyntaxError, pl0t._prepare_data, np.array([1, 2, 3]), d)
+        self.assertRaises(SyntaxError, pl0t._prepare_data, np.array([1, 2, 3]), pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prepare_data, d, d)
+        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d), pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prepare_data, np.array([1, 2, 3]), d, pd.DataFrame(d))
+
+        a = [1, 2, 3]
+        b = [4, 5, 6]
+        c = [7, 8, 9]
+        d = {0: a, 1: b, 2: c}
+
+        # cat needed for DataFrame
+        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d), cat='d')
+
+        # val needed for DataFrame
+        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d), cat='a')
+        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d), cat='a', val='d')
+
+        # aggregation testing
+        r = pl0t._prepare_data(a, b, c)
+        for cat in r['variable'].unique():
+            out_v = r[r['variable'] == cat]['value']
+            self.assertTrue(set(out_v) == set(d[cat]))
+
+        d = {0: np.array(a), 1: np.array(b), 2: np.array(c)}
+        r = pl0t._prepare_data(a, b, c)
+        for cat in r['variable'].unique():
+            out_v = r[r['variable'] == cat]['value'].to_list()
+            self.assertTrue(set(out_v) == set(d[cat]))
+
+        d = {0: pd.Series(a), 1: np.array(b), 2: c}
+        r = pl0t._prepare_data(a, b, c)
+        for cat in r['variable'].unique():
+            out_v = r[r['variable'] == cat]['value'].to_list()
+            self.assertTrue(set(out_v) == set(d[cat]))
+
+        d = {0: a, 1: b, 2: c}
+        r = pl0t._prepare_data(d)
+        for cat in r['variable'].unique():
+            out_v = r[r['variable'] == cat]['value'].to_list()
+            in_v = d[cat]
+            self.assertTrue(set(out_v) == set(in_v))
+
+        d = {'xy': a, 'zz': b, 'dd': c}
+        r = pl0t._prepare_data(d, labels='asis')
+        for cat in r['variable'].unique():
+            out_v = r[r['variable'] == cat]['value'].to_list()
+            in_v = d[cat]
+            self.assertTrue(set(out_v) == set(in_v))
+
+        l = ['c', 'd', 'e']
+        d = {'c': a, 'd': b, 'e': c}
+        r = pl0t._prepare_data(d, labels=l)
+        for cat in r['variable'].unique():
+            out_v = r[r['variable'] == cat]['value'].to_list()
+            in_v = d[cat]
+            self.assertTrue(set(out_v) == set(in_v))
+            
+        # d = {'c': a, 'd': b, 'e': c}
+        # r = pl0t._prepare_data(pd.DataFrame(d), cat='c', labels='asis')
+        # out_v = r[r['variable'] == 'c'].to_list()
+        # in_v = d['c']
+        # print(in_v, out_v)
+        # self.assertTrue(set(out_v) == set(in_v))
+
+
+
+            
+    def test__prep_labels(self):
+        # labels = None
+        r = pl0t._prep_labels([1,2,3], [4, 5, 6], [7, 8, 9], found_nD_data=False,
+                                                     data_cnt = 3,  labels=None)
+        self.assertTrue([0, 1, 2] == r)
+
+        r = pl0t._prep_labels(np.array([1,2,3]), np.array([4, 5, 6]), np.array([7, 8, 9]),
+                              found_nD_data=False, data_cnt = 3,  labels=None)
+        self.assertTrue([0, 1, 2] == r)
+
+        d = {'a': [1, 2, 3],
+             'b': [4, 5, 6],
+             'c': [7, 8, 9]
+        }
+        r = pl0t._prep_labels(d, found_nD_data=True, data_cnt = len(d.keys()), labels=None)
+        self.assertTrue([0, 1, 2] == r)
+
         df = pd.DataFrame(d)
-        self.assertRaises(SyntaxError, pl0t._parse_datas, df)
-        d1 = {'foo': [1,]}
-        df1 = pd.DataFrame(d1)
-        self.assertRaises(SyntaxError, pl0t._parse_datas, df1)
-        d2 = {'foo': s1, 'cat': s2}
-        df2 = pd.DataFrame(d2)
-        self.assertRaises(SyntaxError, pl0t._parse_datas, df2)
-        r = pl0t._parse_datas(df2, cat='cat')
-        self.assertTrue(df2.equals(r))
-        self.assertRaises(SyntaxError, pl0t._parse_datas, df2, [1, 2, 4])
-        self.assertRaises(SyntaxError, pl0t._parse_datas, df2, {})
-        self.assertRaises(SyntaxError, pl0t._parse_datas,
-                          s1, s2, labels=('a',))
-        r = pl0t._parse_datas(s1, s2, labels=('foo', 'cat'))
-        self.assertTrue(r.equals(df2))
-        r = pl0t._parse_datas(s1, s2)
-        self.assertTrue(r.equals(pd.DataFrame({1: s1, 2: s2})))
+        r = pl0t._prep_labels(df, found_nD_data=True, data_cnt = len(df['a'].unique()),
+                              cat='a', labels=None)
+        self.assertTrue([0, 1, 2] == r)
+
+        # label = 'asis'
+
+        self.assertRaises(SyntaxError, pl0t._prep_labels, [1,2,3], found_nD_data=False,
+                          data_cnt=1, labels='asis')
+
+        self.assertRaises(SyntaxError, pl0t._prep_labels, np.array([1,2,3]), found_nD_data=False,
+                          data_cnt=1, labels='asis')
+
+        r = pl0t._prep_labels(d, found_nD_data=True, data_cnt = len(d.keys()), labels='asis')
+        self.assertTrue(['a', 'b', 'c'] == r)
+
+        r = pl0t._prep_labels(df, found_nD_data=True, data_cnt = len(df['a'].unique()),
+                              cat='a', labels='asis')
+        self.assertTrue(['a', 'b', 'c'] == r)
+
+        # labels == (...)
+        self.assertRaises(SyntaxError, pl0t._prep_labels, [1, 2, 3], [4, 5, 6]
+                          , np.array([7, 8, 9]), found_nD_data=False, data_cnt=3,
+                          labels= ('a', 'b'))
+
+        self.assertRaises(SyntaxError, pl0t._prep_labels, [1, 2, 3], pd.Series([4, 5, 6])
+                          , np.array([7, 8, 9]), found_nD_data=False, data_cnt=3,
+                          labels= ('a', 'b'))
+
+        self.assertRaises(SyntaxError, pl0t._prep_labels, d, found_nD_data=True, data_cnt=1,
+                          labels=('a', 'b'))
+
+        self.assertRaises(SyntaxError, pl0t._prep_labels, pd.DataFrame(d), found_nD_data=True,
+                          data_cnt=1, cat='a', labels= ('a', 'b'))
+        
+        
