@@ -62,12 +62,13 @@ def scat(x, y, **kwargs):
     sns.scatterplot(x=x_val['value'], y=y_val['value'], **kwargs)
 
     
-def lplt(*data, cat=None, labels=None, **kwargs):
+def lplt(x, y, **kwargs):
     '''
     Plot a lineplot
     '''
-    dat = _prepare_data(data, cat=cat, labels=labels)
-    sns.scatterplot(*data, **kwargs)
+    x_val = _prepare_data(x)
+    y_val = _prepare_data(y)
+    sns.lineplot(x=x_val['value'], y=y_val['value'], **kwargs)
 
     
 def shw():
@@ -113,10 +114,10 @@ def rot_xlab(graph, angle=30):
     rot_axis_labs(graph=graph, angle=angle, ax='x')
 
     
-def fill_in():
-    pass
+def fill_in(x, lbound, ubound, color='lightgreen', alpha=0.5, **kwargs):
+    plt.fill_between(x, lbound, ubound, color=color, alpha=0.5)
 
-
+    
 def set_titles(main=None, x_title=None, y_title=None):
     if main:
         title(main)
@@ -136,7 +137,8 @@ def save(fname=None, dest_dir=None, dpi=300, ext='.png'):
         filename = fname
     if dest_dir:
         destdir = destdir
-    plt.savefig(os.path.join(destdir, filename + ext), dpi=dpi)
+    plt.tight_layout()
+    plt.savefig(os.path.join(destdir, filename + ext), dpi=dpi, transparent=True)
 
     
 def _prep_labels(*data, found_nD_data, data_cnt, cat=None, labels=None):
