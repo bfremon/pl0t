@@ -21,8 +21,9 @@ def hist(*data, labels=None, stat='count', palette=palette, **kwargs):
     
 def ind(*data, labels=None, palette=palette, **kwargs):
     dat = _prepare_data(*data, labels=labels)
-    sns.catplot(data=dat, y='value', x='variable',
+    ret = sns.catplot(data=dat, y='value', x='variable',
                 palette=palette, jitter=True, **kwargs)
+    return ret
 
     
 def bplt(cat, val, *data, labels=None, **kwargs):
@@ -91,14 +92,27 @@ def ytitle(t):
     plt.ylabel(t)
 
     
-def rot_xlab():
-    pass
+def rot_axis_labs(graph, angle=30, ax='x'):
+    if not graph:
+        raise SyntaxError('Graph reference needed')
+    if ax != 'x' and ax != 'y':
+        raise SyntaxError('axis must be set either to x or y')
+    if not 0 <= angle <= 180:
+        raise SyntaxError('angle must be between 0 and 180°')
+    if ax == 'x':
+        graph.set_xticklabels(rotation=angle)
+    else:
+        graph.set_yticklabels(rotation=angle)
 
+        
+def rot_ylab(graph, angle=30):
+    rot_axis_labs(graph=graph, angle=angle, ax='y')
 
-def rot_ylab():
-    pass
+    
+def rot_xlab(graph, angle=30):
+    rot_axis_labs(graph=graph, angle=angle, ax='x')
 
-
+    
 def fill_in():
     pass
 
@@ -124,6 +138,7 @@ def save(fname=None, dest_dir=None, dpi=300, ext='.png'):
         destdir = destdir
     plt.savefig(os.path.join(destdir, filename + ext), dpi=dpi)
 
+    
 def _prep_labels(*data, found_nD_data, data_cnt, cat=None, labels=None):
     ret = None
     if labels:

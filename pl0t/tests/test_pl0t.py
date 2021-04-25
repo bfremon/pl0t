@@ -145,3 +145,10 @@ class test_pl0t(unittest.TestCase):
                           data_cnt=1, cat='a', labels= ('a', 'b'))
         
         
+    def test_rot_axis_labs(self):
+        g = pl0t.ind([1, 2, 3])
+        self.assertRaises(SyntaxError, pl0t.rot_axis_labs, None, 40, 'z')
+        self.assertRaises(SyntaxError, pl0t.rot_axis_labs, g, 40, 'z')
+        self.assertRaises(SyntaxError, pl0t.rot_axis_labs, g, -40, 'x')
+        self.assertRaises(SyntaxError, pl0t.rot_axis_labs, g, 200, 'x')
+            
