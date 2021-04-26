@@ -127,7 +127,7 @@ def set_titles(main=None, x_title=None, y_title=None):
         ytitle(y_title)
 
         
-def save(fname=None, dest_dir=None, dpi=300, ext='.png'):
+def save(fname=None, dest_dir=None, dpi=300, ext='.png', transparent=True):
     filename = ''
     destdir = os.getcwd()
     if not fname:
@@ -138,9 +138,12 @@ def save(fname=None, dest_dir=None, dpi=300, ext='.png'):
     if dest_dir:
         destdir = destdir
     plt.tight_layout()
-    plt.savefig(os.path.join(destdir, filename + ext), dpi=dpi, transparent=True)
+    if transparent:
+        plt.savefig(os.path.join(destdir, filename + ext), dpi=dpi, transparent=True)
+    else:
+        plt.savefig(os.path.join(destdir, filename + ext), dpi=dpi, transparent=True)
 
-    
+        
 def _prep_labels(*data, found_nD_data, data_cnt, cat=None, labels=None):
     ret = None
     if labels:
@@ -206,7 +209,7 @@ def _prepare_data(*data, cat=None, val=None, labels=None):
         elif isinstance(v, pd.Series):
             if v.empty:
                 raise SyntaxError('%s: no data to parse' % v)
-        elif v == None  or str(v) == '' or v == {} :
+        elif v == None  or str(v) == '' or v == {} or v == [] :
             raise SyntaxError('%s: no data to parse' % v)
 
     # looking for cat / val param
