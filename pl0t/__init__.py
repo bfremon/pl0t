@@ -203,8 +203,11 @@ def _prepare_data(*data, cat=None, val=None, labels=None):
         elif isinstance(v, np.ndarray):
             if len(v) == 0:
                 raise SyntaxError('%s: no data to parse' % v)
-        elif not v or str(v) == '' or v == {}:
+        elif isinstance(v, pd.Series):
+            if v.empty:
                 raise SyntaxError('%s: no data to parse' % v)
+        elif v == None  or str(v) == '' or v == {} :
+            raise SyntaxError('%s: no data to parse' % v)
 
     # looking for cat / val param
     if found_nD_data:
