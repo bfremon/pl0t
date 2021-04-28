@@ -14,12 +14,29 @@ set_dbg_lvl(True)
 palette = 'deep'
 
 def hist(*data, labels=None, stat='count', palette=palette, **kwargs):
+    '''
+    Wrapper for seaborn histplot func:
+    *data: 1D vectors to be plotted
+    labels: alternate labels for each 1D vector
+    stat: can be either count, frequency, density or probability
+    palette: eponymous
+    **kwargs: any complementary options passed to histplot
+    '''
+    # TODO: palette option ?
     dat = _prepare_data(*data, labels=labels)
     sns.histplot(data=dat, x='value', hue='variable',
                   stat=stat, palette=palette, **kwargs)
 
     
 def ind(*data, labels=None, palette=palette, **kwargs):
+    '''
+    Wrapper for seaborn catplot func:
+    *data: 1D vectors to be plotted
+    labels: alternate labels for each 1D vector
+    palette: eponymous
+    **kwargs: any complementary options passed to catplot
+    '''
+    # TODO: ret ? 
     dat = _prepare_data(*data, labels=labels)
     ret = sns.catplot(data=dat, y='value', x='variable',
                 palette=palette, jitter=True, **kwargs)
@@ -27,13 +44,22 @@ def ind(*data, labels=None, palette=palette, **kwargs):
 
     
 def bplt(cat, val, *data, labels=None, **kwargs):
+    '''
+    Wrapper for seaborn boxplot func:
+    cat: category column to be used
+    val: value column
+    *data: data dict or DataFrame 
+    labels: alternate labels for each 1D vector
+    **kwargs: any complementary options passed to catplot
+    '''
     dat = _prepare_data(*data, cat=cat, val=val, labels=labels)
     sns.boxplot(data=dat, y='variable', x='value')
 
     
 def vline(x, color='r', **kwargs):
-    '''Plot a vertical line going through x
-    color: matplotlib color of line
+    '''
+    Plot a vertical line going through x
+    color: matplotlib color of line (default: red)
     **kwargs: other axvline() params
     '''
     if color:
@@ -43,9 +69,10 @@ def vline(x, color='r', **kwargs):
 
         
 def hline(y, color='b', **kwargs):
-    '''Plot an horizontal line going through y
-    color: matplotlib color of line
-    *args: other axvline() params
+    '''
+    Plot an horizontal line going through y
+    color: matplotlib color of line (default: blue)
+    *kwargs: other axvline() params
     '''
     if color:
         plt.axhline(y, color=color, **kwargs)
@@ -56,6 +83,9 @@ def hline(y, color='b', **kwargs):
 def scat(x, y, **kwargs):
     '''
     Plot a scatter plot
+    x_val: 1D vector 
+    y_val: 1D vector
+    **kwargs: any complementary options of seaborn.scatterplot
     '''
     x_val = _prepare_data(x)
     y_val = _prepare_data(y)
@@ -64,7 +94,10 @@ def scat(x, y, **kwargs):
     
 def lplt(x, y, **kwargs):
     '''
-    Plot a lineplot
+    Plot a line plot
+    x_val: 1D vector 
+    y_val: 1D vector
+    **kwargs: any complementary options of seaborn.lineplot
     '''
     x_val = _prepare_data(x)
     y_val = _prepare_data(y)
@@ -72,28 +105,47 @@ def lplt(x, y, **kwargs):
 
     
 def shw():
-    ''' To display current graph'''
+    ''' 
+    To display current graph
+    '''
     plt.show()
 
     
 def cls():
-    '''To close current graph'''
+    '''
+    To close current graph
+    '''
     plt.close()
 
     
 def title(t):
+    '''
+    Set main graph title
+    '''
     plt.title(t)
 
     
 def xtitle(t):
+    ''' 
+    Set x axis title
+    '''
     plt.xlabel(t)
 
     
 def ytitle(t):
+    ''' 
+    Set y axis title
+    '''
     plt.ylabel(t)
 
     
 def rot_axis_labs(graph, angle=30, ax='x'):
+    '''
+    Rotate x or y axis labels by angle °
+    graph: pointer to current graph
+    angle: rotation angle between 0 and 180°
+    ax: x or y axis
+    '''
     if not graph:
         raise SyntaxError('Graph reference needed')
     if ax != 'x' and ax != 'y':
@@ -107,18 +159,30 @@ def rot_axis_labs(graph, angle=30, ax='x'):
 
         
 def rot_ylab(graph, angle=30):
+    '''
+    Rotate y axis labels of plot 'graph' by angle °
+    '''
     rot_axis_labs(graph=graph, angle=angle, ax='y')
 
     
 def rot_xlab(graph, angle=30):
+    '''
+    Rotate x axis labels of plot 'graph' by angle °
+    '''
     rot_axis_labs(graph=graph, angle=angle, ax='x')
 
     
 def fill_in(x, lbound, ubound, color='lightgreen', alpha=0.5, **kwargs):
+    '''
+    Fill y zone between lbound and ubound with color and alpha transparency
+    '''
     plt.fill_between(x, lbound, ubound, color=color, alpha=0.5)
 
     
 def set_titles(main=None, x_title=None, y_title=None):
+    ''' 
+    Set graphs titles with eponymous options
+    '''
     if main:
         title(main)
     if xtitle:
@@ -128,6 +192,11 @@ def set_titles(main=None, x_title=None, y_title=None):
 
         
 def save(fname=None, dest_dir=None, dpi=300, ext='.png', transparent=True):
+    ''' 
+    Save current graph in ext format with fname name in dest_dir
+    dpi: pixels per inch
+    transparent: background set or not to transparent
+    '''
     filename = ''
     destdir = os.getcwd()
     if not fname:
