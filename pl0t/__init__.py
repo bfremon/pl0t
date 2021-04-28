@@ -141,7 +141,7 @@ def save(fname=None, dest_dir=None, dpi=300, ext='.png', transparent=True):
     if transparent:
         plt.savefig(os.path.join(destdir, filename + ext), dpi=dpi, transparent=True)
     else:
-        plt.savefig(os.path.join(destdir, filename + ext), dpi=dpi, transparent=True)
+        plt.savefig(os.path.join(destdir, filename + ext), dpi=dpi, transparent=False)
 
         
 def _prep_labels(*data, found_nD_data, data_cnt, cat=None, labels=None):
