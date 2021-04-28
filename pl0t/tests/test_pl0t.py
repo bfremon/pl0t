@@ -13,6 +13,7 @@ class test_pl0t(unittest.TestCase):
         self.assertRaises(SyntaxError, pl0t._prepare_data, [])
         self.assertRaises(SyntaxError, pl0t._prepare_data, {})
         self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame({}))
+        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.Series([], dtype='float64'))
         self.assertRaises(SyntaxError, pl0t._prepare_data, np.array([]))
 
         # no 1D / nD (n >= 2) data mixing 
@@ -22,6 +23,7 @@ class test_pl0t(unittest.TestCase):
         self.assertRaises(SyntaxError, pl0t._prepare_data, d, d)
         self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d), pd.DataFrame(d))
         self.assertRaises(SyntaxError, pl0t._prepare_data, [1, 2, 3], d, pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.Series([1, 2, 3]), d, pd.DataFrame(d))
 
         self.assertRaises(SyntaxError, pl0t._prepare_data, np.array([1, 2, 3]), d)
         self.assertRaises(SyntaxError, pl0t._prepare_data, np.array([1, 2, 3]), pd.DataFrame(d))
@@ -48,6 +50,11 @@ class test_pl0t(unittest.TestCase):
             out_v = r[r['variable'] == cat]['value']
             self.assertTrue(set(out_v) == set(d[cat]))
 
+        r = pl0t._prepare_data(pd.Series(a), pd.Series(b), c)
+        for cat in r['variable'].unique():
+            out_v = r[r['variable'] == cat]['value']
+            self.assertTrue(set(out_v) == set(d[cat]))
+            
         d = {0: np.array(a), 1: np.array(b), 2: np.array(c)}
         r = pl0t._prepare_data(a, b, c)
         for cat in r['variable'].unique():
@@ -81,7 +88,16 @@ class test_pl0t(unittest.TestCase):
             out_v = r[r['variable'] == cat]['value'].to_list()
             in_v = d[cat]
             self.assertTrue(set(out_v) == set(in_v))
-            
+
+        l = ['c', 'd', 'e']
+        d = {'c': pd.Series(a), 'd': b, 'e': pd.Series(c)}
+        r = pl0t._prepare_data(d, labels=l)
+        for cat in r['variable'].unique():
+            out_v = r[r['variable'] == cat]['value'].to_list()
+            in_v = d[cat]
+            self.assertTrue(set(out_v) == set(in_v))
+        
+        
         # d = {'c': a, 'd': b, 'e': c}
         # r = pl0t._prepare_data(pd.DataFrame(d), cat='c', labels='asis')
         # out_v = r[r['variable'] == 'c'].to_list()
