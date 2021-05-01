@@ -28,7 +28,7 @@ def hist(*data, labels=None, stat='count', palette=palette, **kwargs):
                   stat=stat, palette=palette, **kwargs)
 
     
-def ind(*data, labels=None, palette=palette, **kwargs):
+def ind(*data, cat=None, val=None, labels=None, palette=palette, **kwargs):
     '''
     Wrapper for seaborn catplot func:
     *data: 1D vectors to be plotted
@@ -37,11 +37,10 @@ def ind(*data, labels=None, palette=palette, **kwargs):
     **kwargs: any complementary options passed to catplot
     '''
     # TODO: ret ? 
-    dat = _prepare_data(*data, labels=labels)
-    ret = sns.catplot(data=dat, y='value', x='variable',
+    dat = _prepare_data(*data, cat=cat, val=val, labels=labels)
+    ret = sns.catplot(data=dat, y='variable', x='value',
                 palette=palette, jitter=True, **kwargs)
     return ret
-
     
 def bplt(cat, val, *data, labels=None, **kwargs):
     '''
