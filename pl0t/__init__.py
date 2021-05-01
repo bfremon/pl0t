@@ -53,7 +53,7 @@ def bplt(cat, val, *data, labels=None, **kwargs):
     **kwargs: any complementary options passed to catplot
     '''
     dat = _prepare_data(*data, cat=cat, val=val, labels=labels)
-    sns.boxplot(data=dat, y='variable', x='value')
+    sns.boxplot(data=dat, y='variable', x='value', **kwargs)
 
     
 def vline(x, color='r', **kwargs):
