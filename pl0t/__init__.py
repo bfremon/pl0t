@@ -38,7 +38,7 @@ def ind(*data, cat=None, val=None, labels=None, palette=palette, **kwargs):
     '''
     # TODO: ret ? 
     dat = _prepare_data(*data, cat=cat, val=val, labels=labels)
-    ret = sns.catplot(data=dat, y='variable', x='value',
+    ret = sns.stripplot(data=dat, y='variable', x='value',
                 palette=palette, jitter=True, **kwargs)
     return ret
     
@@ -61,6 +61,14 @@ def vline(x, color='r', **kwargs):
     color: matplotlib color of line (default: red)
     **kwargs: other axvline() params
     '''
+    if 'ax' in kwargs:
+        local_kwargs = kwargs.copy()
+        del local_kwargs['ax']
+        if color:
+            kwargs['ax'].axvline(x, color=color, **local_kwargs)
+        else:
+            kwargs['ax'].axvline(x, **local_kwargs)
+        return
     if color:
         plt.axvline(x, color=color, **kwargs)
     else:
@@ -138,7 +146,7 @@ def ytitle(t):
     plt.ylabel(t)
 
     
-def rot_axis_labs(graph, angle=30, ax='x'):
+def rot_axis_labs(graph, angle=30, axis='x'):
     '''
     Rotate x or y axis labels by angle °
     graph: pointer to current graph
@@ -147,14 +155,16 @@ def rot_axis_labs(graph, angle=30, ax='x'):
     '''
     if not graph:
         raise SyntaxError('Graph reference needed')
-    if ax != 'x' and ax != 'y':
+    if axis != 'x' and axis != 'y':
         raise SyntaxError('axis must be set either to x or y')
     if not 0 <= angle <= 180:
         raise SyntaxError('angle must be between 0 and 180°')
-    if ax == 'x':
-        graph.set_xticklabels(rotation=angle)
+    if axis == 'x':
+        labels = graph.get_xticklabels()
+        graph.set_xticklabels(labels=labels, rotation=angle)
     else:
-        graph.set_yticklabels(rotation=angle)
+        labels = graph.get_yticklabels()
+        graph.set_yticklabels(labels=labels, rotation=angle)
 
         
 def rot_ylab(graph, angle=30):
@@ -190,7 +200,7 @@ def set_titles(main=None, x_title=None, y_title=None):
         ytitle(y_title)
 
         
-def save(fname=None, dest_dir=None, dpi=300, ext='.png', transparent=True):
+def save(fname=None, dest_dir=None, dpi=1200, ext='.svg', transparent=True):
     ''' 
     Save current graph in ext format with fname name in dest_dir
     dpi: pixels per inch
