@@ -81,6 +81,15 @@ def hline(y, color='b', **kwargs):
     color: matplotlib color of line (default: blue)
     *kwargs: other axvline() params
     '''
+    if 'ax' in kwargs:
+        local_kwargs = kwargs.copy()
+        del local_kwargs['ax']
+        if color:
+            kwargs['ax'].axhline(y, color=color, **local_kwargs)
+        else:
+            kwargs['ax'].axhline(y, **local_kwargs)
+        return
+
     if color:
         plt.axhline(y, color=color, **kwargs)
     else:
