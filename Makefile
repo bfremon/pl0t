@@ -14,7 +14,7 @@ pip: README.md setup.py .VERSION LICENCE pl0t/__init__.py pre
 	$(pip) install .
 
 clean:
-	$(rm) __pycache__ pl0t/__pycache__  pl0t/tests/__pycache__ *.png
+	$(rm) __pycache__ pl0t/__pycache__  pl0t/tests/__pycache__ *.png *.svg 
 
 pre:
 	$(sudo) $(apt_install) python3-pip
