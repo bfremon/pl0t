@@ -54,13 +54,27 @@ def bplt(cat, val, *data, labels=None, **kwargs):
     dat = _prepare_data(*data, cat=cat, val=val, labels=labels)
     sns.boxplot(data=dat, y='variable', x='value', **kwargs)
 
-def __panel(cat, *data, yval, xval=None, gtype='scat', col_nb=3, labels=None, **kwargs):
+def scat_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
+    '''
+    *data: data to be plotted
+    cat: category column to be used
+    ylab: y-axis variable column label
+    xlab: x-axis variable column label (scatterplot)
+    col_nb: number of columns (default to 3)
+    labels: alternate labels for each 1D vector
+    **kwargs: any complementary options passed to gtype func
+    '''
+    __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='scat', col_nb=3, labels=None, **kwargs)
+    
+    
+def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, labels=None, **kwargs):
     '''
     Wrapper to plot graphs panels:
     gtype: graphe type (scatterplot or individual plot)
     cat: category column to be used
-    yval: y-axis variable column label
-    xval: x-axis variable column label (scatterplot)
+    *data: data to be plotted
+    ylab: y-axis variable column label
+    xlab: x-axis variable column label (scatterplot)
     col_nb: number of columns (default to 3)
     labels: alternate labels for each 1D vector
     **kwargs: any complementary options passed to gtype func
@@ -73,7 +87,7 @@ def __panel(cat, *data, yval, xval=None, gtype='scat', col_nb=3, labels=None, **
             gfunc = sns.scatterplot
     #    dat = _prepare_data(*data, cat=cat, labels=labels
     dat = data[0]
-    if not yval in dat.columns:
+    if not ylab in dat.columns:
         raise SyntaxError('Invalid y axis label')
     if not cat in dat.columns:
         raise SyntaxError('Invalid categorical label')
