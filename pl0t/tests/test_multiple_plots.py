@@ -3,7 +3,7 @@
 import random
 import pandas as pd
 from . import tutils as tu
-from pl0t import *
+import pl0t
 
 def rnd_title(l=50, min_word_len=2, max_word_len=8):
     ret = ''
@@ -31,7 +31,7 @@ f_prefix = 'test_multiple-'
 
 def mk_n_scats(graphs_nb):
     d = gen_norm_series(graphs_nb)
-    panel('cat', d, yval='y', xval='x')
+    pl0t.__panel('cat', d, yval='y', xval='x')
     tu.save(f_prefix + 'scat-' + str(graphs_nb))
 
 mk_n_scats(10)

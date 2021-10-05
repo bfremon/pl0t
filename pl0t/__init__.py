@@ -54,7 +54,7 @@ def bplt(cat, val, *data, labels=None, **kwargs):
     dat = _prepare_data(*data, cat=cat, val=val, labels=labels)
     sns.boxplot(data=dat, y='variable', x='value', **kwargs)
 
-def panel(cat, *data, yval, xval=None, gtype='scat', col_nb=3, labels=None, **kwargs):
+def __panel(cat, *data, yval, xval=None, gtype='scat', col_nb=3, labels=None, **kwargs):
     '''
     Wrapper to plot graphs panels:
     gtype: graphe type (scatterplot or individual plot)
