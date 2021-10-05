@@ -54,6 +54,35 @@ def bplt(cat, val, *data, labels=None, **kwargs):
     dat = _prepare_data(*data, cat=cat, val=val, labels=labels)
     sns.boxplot(data=dat, y='variable', x='value', **kwargs)
 
+def panel(cat, *data, yval, xval=None, gtype='scat', col_nb=3, labels=None, **kwargs):
+    '''
+    Wrapper to plot graphs panels:
+    gtype: graphe type (scatterplot or individual plot)
+    cat: category column to be used
+    yval: y-axis variable column label
+    xval: x-axis variable column label (scatterplot)
+    col_nb: number of columns (default to 3)
+    labels: alternate labels for each 1D vector
+    **kwargs: any complementary options passed to gtype func
+    '''
+    allowed_graphs = ['scat']
+    if not gtype in allowed_graphs:
+        raise SyntaxError('%s: graph type not supported' % gtype)
+    else:
+        if gtype == 'scat':
+            gfunc = sns.scatterplot
+    #    dat = _prepare_data(*data, cat=cat, labels=labels
+    dat = data[0]
+    if not yval in dat.columns:
+        raise SyntaxError('Invalid y axis label')
+    if not cat in dat.columns:
+        raise SyntaxError('Invalid categorical label')
+    if len(dat[cat].unique()) < 2:
+        raise SyntaxError('Not enough categories to create panel (>= 2 needed)')
+    if col_nb > len(dat[cat].unique()):
+        warn('Only one line will be plotted')
+    g = sns.FacetGrid(dat, col=cat, col_wrap=col_nb)
+    g.map_dataframe(gfunc, data=dat, x='x', y='y', palette=palette)
     
 def vline(x, color='r', **kwargs):
     '''
@@ -257,7 +286,7 @@ def _prep_labels(*data, found_nD_data, data_cnt, cat=None, labels=None):
     assert len(ret) != None
     return ret
 
-    
+
 def _prepare_data(*data, cat=None, val=None, labels=None):
     '''
     Sanitize input for plotting:
