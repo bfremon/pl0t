@@ -65,7 +65,18 @@ def scat_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
     **kwargs: any complementary options passed to gtype func
     '''
     __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='scat', col_nb=3, labels=None, **kwargs)
-    
+
+def lplot_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
+    '''
+    *data: data to be plotted
+    cat: category column to be used
+    ylab: y-axis variable column label
+    xlab: x-axis variable column label (scatterplot)
+    col_nb: number of columns (default to 3)
+    labels: alternate labels for each 1D vector
+    **kwargs: any complementary options passed to gtype func
+    '''
+    __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='lplot', col_nb=3, labels=None, **kwargs)
     
 def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, labels=None, **kwargs):
     '''
@@ -79,12 +90,14 @@ def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, labels=None, **
     labels: alternate labels for each 1D vector
     **kwargs: any complementary options passed to gtype func
     '''
-    allowed_graphs = ['scat']
+    allowed_graphs = ['scat', 'lplot']
     if not gtype in allowed_graphs:
         raise SyntaxError('%s: graph type not supported' % gtype)
     else:
         if gtype == 'scat':
             gfunc = sns.scatterplot
+        elif gtype == 'lplot':
+            gfunc = sns.lineplot
     #    dat = _prepare_data(*data, cat=cat, labels=labels
     dat = data[0]
     if not ylab in dat.columns:
