@@ -23,7 +23,7 @@ def hist(*data, labels=None, stat='count', palette=palette, **kwargs):
     **kwargs: any complementary options passed to histplot
     '''
     # TODO: palette option ?
-    dat = _prepare_data(*data, labels=labels)
+    dat = _prep_data(*data, labels=labels)
     sns.histplot(data=dat, x='value', hue='variable',
                   stat=stat, palette=palette, **kwargs)
 
@@ -37,7 +37,7 @@ def ind(*data, cat=None, val=None, labels=None, palette=palette, **kwargs):
     **kwargs: any complementary options passed to catplot
     '''
     # TODO: ret ? 
-    dat = _prepare_data(*data, cat=cat, val=val, labels=labels)
+    dat = _prep_data(*data, cat=cat, val=val, labels=labels)
     ret = sns.stripplot(data=dat, y='variable', x='value',
                 palette=palette, jitter=True, **kwargs)
     return ret
@@ -51,7 +51,7 @@ def bplt(cat, val, *data, labels=None, **kwargs):
     labels: alternate labels for each 1D vector
     **kwargs: any complementary options passed to catplot
     '''
-    dat = _prepare_data(*data, cat=cat, val=val, labels=labels)
+    dat = _prep_data(*data, cat=cat, val=val, labels=labels)
     sns.boxplot(data=dat, y='variable', x='value', **kwargs)
 
 def scat_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
@@ -98,7 +98,7 @@ def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, labels=None, **
             gfunc = sns.scatterplot
         elif gtype == 'lplot':
             gfunc = sns.lineplot
-    #    dat = _prepare_data(*data, cat=cat, labels=labels
+    #    dat = _prep_data(*data, cat=cat, labels=labels
     dat = data[0]
     if not ylab in dat.columns:
         raise SyntaxError('Invalid y axis label')
@@ -159,8 +159,8 @@ def scat(x, y, **kwargs):
     y_val: 1D vector
     **kwargs: any complementary options of seaborn.scatterplot
     '''
-    x_val = _prepare_data(x)
-    y_val = _prepare_data(y)
+    x_val = _prep_data(x)
+    y_val = _prep_data(y)
     sns.scatterplot(x=x_val['value'], y=y_val['value'], **kwargs)
 
     
@@ -171,8 +171,8 @@ def lplt(x, y, **kwargs):
     y_val: 1D vector
     **kwargs: any complementary options of seaborn.lineplot
     '''
-    x_val = _prepare_data(x)
-    y_val = _prepare_data(y)
+    x_val = _prep_data(x)
+    y_val = _prep_data(y)
     sns.lineplot(x=x_val['value'], y=y_val['value'], **kwargs)
 
     
@@ -314,7 +314,7 @@ def _prep_labels(*data, found_nD_data, data_cnt, cat=None, labels=None):
     return ret
 
 
-def _prepare_data(*data, cat=None, val=None, labels=None):
+def _prep_data(*data, cat=None, val=None, labels=None):
     '''
     Sanitize input for plotting:
     *data: to be plotted - can be either:

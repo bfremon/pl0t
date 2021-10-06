@@ -6,30 +6,30 @@ import pandas as pd
 import numpy as np
 
 class test_pl0t(unittest.TestCase):
-    def test_prepare_data(self):
+    def test_prep_data(self):
         # no empty data allowed
-        self.assertRaises(SyntaxError, pl0t._prepare_data, None)
-        self.assertRaises(SyntaxError, pl0t._prepare_data, '')
-        self.assertRaises(SyntaxError, pl0t._prepare_data, [])
-        self.assertRaises(SyntaxError, pl0t._prepare_data, {})
-        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame({}))
-        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.Series([], dtype='float64'))
-        self.assertRaises(SyntaxError, pl0t._prepare_data, np.array([]))
+        self.assertRaises(SyntaxError, pl0t._prep_data, None)
+        self.assertRaises(SyntaxError, pl0t._prep_data, '')
+        self.assertRaises(SyntaxError, pl0t._prep_data, [])
+        self.assertRaises(SyntaxError, pl0t._prep_data, {})
+        self.assertRaises(SyntaxError, pl0t._prep_data, pd.DataFrame({}))
+        self.assertRaises(SyntaxError, pl0t._prep_data, pd.Series([], dtype='float64'))
+        self.assertRaises(SyntaxError, pl0t._prep_data, np.array([]))
 
         # no 1D / nD (n >= 2) data mixing 
         d =  {'a': [1, 2, 3]}
-        self.assertRaises(SyntaxError, pl0t._prepare_data, [1, 2, 3], d)
-        self.assertRaises(SyntaxError, pl0t._prepare_data, [1, 2, 3], pd.DataFrame(d))
-        self.assertRaises(SyntaxError, pl0t._prepare_data, d, d)
-        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d), pd.DataFrame(d))
-        self.assertRaises(SyntaxError, pl0t._prepare_data, [1, 2, 3], d, pd.DataFrame(d))
-        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.Series([1, 2, 3]), d, pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prep_data, [1, 2, 3], d)
+        self.assertRaises(SyntaxError, pl0t._prep_data, [1, 2, 3], pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prep_data, d, d)
+        self.assertRaises(SyntaxError, pl0t._prep_data, pd.DataFrame(d), pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prep_data, [1, 2, 3], d, pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prep_data, pd.Series([1, 2, 3]), d, pd.DataFrame(d))
 
-        self.assertRaises(SyntaxError, pl0t._prepare_data, np.array([1, 2, 3]), d)
-        self.assertRaises(SyntaxError, pl0t._prepare_data, np.array([1, 2, 3]), pd.DataFrame(d))
-        self.assertRaises(SyntaxError, pl0t._prepare_data, d, d)
-        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d), pd.DataFrame(d))
-        self.assertRaises(SyntaxError, pl0t._prepare_data, np.array([1, 2, 3]), d, pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prep_data, np.array([1, 2, 3]), d)
+        self.assertRaises(SyntaxError, pl0t._prep_data, np.array([1, 2, 3]), pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prep_data, d, d)
+        self.assertRaises(SyntaxError, pl0t._prep_data, pd.DataFrame(d), pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prep_data, np.array([1, 2, 3]), d, pd.DataFrame(d))
 
         a = [1, 2, 3]
         b = [4, 5, 6]
@@ -37,45 +37,45 @@ class test_pl0t(unittest.TestCase):
         d = {0: a, 1: b, 2: c}
 
         # cat needed for DataFrame
-        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d))
-        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d), cat='d')
+        self.assertRaises(SyntaxError, pl0t._prep_data, pd.DataFrame(d))
+        self.assertRaises(SyntaxError, pl0t._prep_data, pd.DataFrame(d), cat='d')
 
         # val needed for DataFrame
-        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d), cat='a')
-        self.assertRaises(SyntaxError, pl0t._prepare_data, pd.DataFrame(d), cat='a', val='d')
+        self.assertRaises(SyntaxError, pl0t._prep_data, pd.DataFrame(d), cat='a')
+        self.assertRaises(SyntaxError, pl0t._prep_data, pd.DataFrame(d), cat='a', val='d')
 
         # aggregation testing
-        r = pl0t._prepare_data(a, b, c)
+        r = pl0t._prep_data(a, b, c)
         for cat in r['variable'].unique():
             out_v = r[r['variable'] == cat]['value']
             self.assertTrue(set(out_v) == set(d[cat]))
 
-        r = pl0t._prepare_data(pd.Series(a), pd.Series(b), c)
+        r = pl0t._prep_data(pd.Series(a), pd.Series(b), c)
         for cat in r['variable'].unique():
             out_v = r[r['variable'] == cat]['value']
             self.assertTrue(set(out_v) == set(d[cat]))
             
         d = {0: np.array(a), 1: np.array(b), 2: np.array(c)}
-        r = pl0t._prepare_data(a, b, c)
+        r = pl0t._prep_data(a, b, c)
         for cat in r['variable'].unique():
             out_v = r[r['variable'] == cat]['value'].to_list()
             self.assertTrue(set(out_v) == set(d[cat]))
 
         d = {0: pd.Series(a), 1: np.array(b), 2: c}
-        r = pl0t._prepare_data(a, b, c)
+        r = pl0t._prep_data(a, b, c)
         for cat in r['variable'].unique():
             out_v = r[r['variable'] == cat]['value'].to_list()
             self.assertTrue(set(out_v) == set(d[cat]))
 
         d = {0: a, 1: b, 2: c}
-        r = pl0t._prepare_data(d)
+        r = pl0t._prep_data(d)
         for cat in r['variable'].unique():
             out_v = r[r['variable'] == cat]['value'].to_list()
             in_v = d[cat]
             self.assertTrue(set(out_v) == set(in_v))
 
         d = {'xy': a, 'zz': b, 'dd': c}
-        r = pl0t._prepare_data(d, labels='asis')
+        r = pl0t._prep_data(d, labels='asis')
         for cat in r['variable'].unique():
             out_v = r[r['variable'] == cat]['value'].to_list()
             in_v = d[cat]
@@ -83,7 +83,7 @@ class test_pl0t(unittest.TestCase):
 
         l = ['c', 'd', 'e']
         d = {'c': a, 'd': b, 'e': c}
-        r = pl0t._prepare_data(d, labels=l)
+        r = pl0t._prep_data(d, labels=l)
         for cat in r['variable'].unique():
             out_v = r[r['variable'] == cat]['value'].to_list()
             in_v = d[cat]
@@ -91,7 +91,7 @@ class test_pl0t(unittest.TestCase):
 
         l = ['c', 'd', 'e']
         d = {'c': pd.Series(a), 'd': b, 'e': pd.Series(c)}
-        r = pl0t._prepare_data(d, labels=l)
+        r = pl0t._prep_data(d, labels=l)
         for cat in r['variable'].unique():
             out_v = r[r['variable'] == cat]['value'].to_list()
             in_v = d[cat]
@@ -99,7 +99,7 @@ class test_pl0t(unittest.TestCase):
         
         
         # d = {'c': a, 'd': b, 'e': c}
-        # r = pl0t._prepare_data(pd.DataFrame(d), cat='c', labels='asis')
+        # r = pl0t._prep_data(pd.DataFrame(d), cat='c', labels='asis')
         # out_v = r[r['variable'] == 'c'].to_list()
         # in_v = d['c']
         # print(in_v, out_v)
