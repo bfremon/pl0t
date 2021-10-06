@@ -64,7 +64,7 @@ def scat_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
     labels: alternate labels for each 1D vector
     **kwargs: any complementary options passed to gtype func
     '''
-    __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='scat', col_nb=3, labels=None, **kwargs)
+    __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='scat', col_nb=col_nb, labels=None, **kwargs)
 
 def lplot_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
     '''
@@ -76,7 +76,7 @@ def lplot_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
     labels: alternate labels for each 1D vector
     **kwargs: any complementary options passed to gtype func
     '''
-    __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='lplot', col_nb=3, labels=None, **kwargs)
+    __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='lplot', col_nb=col_nb, labels=None, **kwargs)
     
 def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, labels=None, **kwargs):
     '''
@@ -109,7 +109,7 @@ def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, labels=None, **
     if col_nb > len(dat[cat].unique()):
         warn('Only one line will be plotted')
     g = sns.FacetGrid(dat, col=cat, col_wrap=col_nb)
-    g.map_dataframe(gfunc, data=dat, x='x', y='y', palette=palette)
+    g.map_dataframe(gfunc, data=dat, x=xlab, y=ylab, palette=palette)
     
 def vline(x, color='r', **kwargs):
     '''
