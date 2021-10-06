@@ -189,6 +189,13 @@ def cls():
     '''
     plt.close()
 
+def clr():
+    '''
+    To clear matplotlib memory (to be confirmed)
+    '''
+    plt.close('all')
+    plt.cla()
+    plt.clf()
     
 def title(t):
     '''
