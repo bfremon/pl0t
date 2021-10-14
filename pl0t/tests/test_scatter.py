@@ -17,3 +17,8 @@ title('Scatter plot title')
 scat(x=x1, y=x2)
 tu.save(f_prefix)
 cls()
+
+r = scat(x=x2, y=x4)
+r.set(xscale='log')
+tu.save(f_prefix + 'ret_x_scale_log')
+clr()

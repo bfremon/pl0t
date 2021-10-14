@@ -29,3 +29,8 @@ f_prefix += 'dataframe-'
 ind(df, cat='cat', val='val')
 tu.save(f_prefix)
 cls()
+
+r = ind(df, cat='cat', val='val')
+r.set(xscale='log')
+tu.save(f_prefix + 'ret_x_scale_log')
+clr()

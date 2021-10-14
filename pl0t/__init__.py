@@ -24,8 +24,9 @@ def hist(*data, labels=None, stat='count', palette=palette, **kwargs):
     '''
     # TODO: palette option ?
     dat = _prep_data(*data, labels=labels)
-    sns.histplot(data=dat, x='value', hue='variable',
+    ret = sns.histplot(data=dat, x='value', hue='variable',
                   stat=stat, palette=palette, **kwargs)
+    return ret
 
     
 def ind(*data, cat=None, val=None, labels=None, palette=palette, **kwargs):
@@ -41,7 +42,8 @@ def ind(*data, cat=None, val=None, labels=None, palette=palette, **kwargs):
     ret = sns.stripplot(data=dat, y='variable', x='value',
                 palette=palette, jitter=True, **kwargs)
     return ret
-    
+
+
 def bplt(cat, val, *data, labels=None, **kwargs):
     '''
     Wrapper for seaborn boxplot func:
@@ -52,7 +54,9 @@ def bplt(cat, val, *data, labels=None, **kwargs):
     **kwargs: any complementary options passed to catplot
     '''
     dat = _prep_data(*data, cat=cat, val=val, labels=labels)
-    sns.boxplot(data=dat, y='variable', x='value', **kwargs)
+    ret = sns.boxplot(data=dat, y='variable', x='value', **kwargs)
+    return ret
+
 
 def scat_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
     '''
@@ -64,7 +68,9 @@ def scat_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
     labels: alternate labels for each 1D vector
     **kwargs: any complementary options passed to gtype func
     '''
-    __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='scat', col_nb=col_nb, labels=None, **kwargs)
+    ret = __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='scat', col_nb=col_nb, labels=None, **kwargs)
+    return ret
+
 
 def lplot_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
     '''
@@ -76,8 +82,10 @@ def lplot_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
     labels: alternate labels for each 1D vector
     **kwargs: any complementary options passed to gtype func
     '''
-    __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='lplot', col_nb=col_nb, labels=None, **kwargs)
-    
+    ret = __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='lplot', col_nb=col_nb, labels=None, **kwargs)
+    return ret
+
+
 def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, labels=None, **kwargs):
     '''
     Wrapper to plot graphs panels:
@@ -108,9 +116,11 @@ def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, labels=None, **
         raise SyntaxError('Not enough categories to create panel (>= 2 needed)')
     if col_nb > len(dat[cat].unique()):
         warn('Only one line will be plotted')
-    g = sns.FacetGrid(dat, col=cat, col_wrap=col_nb)
-    g.map_dataframe(gfunc, data=dat, x=xlab, y=ylab, palette=palette)
-    
+    ret = sns.FacetGrid(dat, col=cat, col_wrap=col_nb)
+    ret.map_dataframe(gfunc, data=dat, x=xlab, y=ylab, palette=palette)
+    return ret
+
+
 def vline(x, color='r', **kwargs):
     '''
     Plot a vertical line going through x
@@ -161,9 +171,10 @@ def scat(x, y, **kwargs):
     '''
     x_val = _prep_data(x)
     y_val = _prep_data(y)
-    sns.scatterplot(x=x_val['value'], y=y_val['value'], **kwargs)
+    ret = sns.scatterplot(x=x_val['value'], y=y_val['value'], **kwargs)
+    return ret
 
-    
+
 def lplt(x, y, **kwargs):
     '''
     Plot a line plot
@@ -173,9 +184,10 @@ def lplt(x, y, **kwargs):
     '''
     x_val = _prep_data(x)
     y_val = _prep_data(y)
-    sns.lineplot(x=x_val['value'], y=y_val['value'], **kwargs)
+    ret = sns.lineplot(x=x_val['value'], y=y_val['value'], **kwargs)
+    return ret
 
-    
+
 def shw():
     ''' 
     To display current graph
@@ -189,6 +201,7 @@ def cls():
     '''
     plt.close()
 
+    
 def clr():
     '''
     To clear matplotlib memory (to be confirmed)
@@ -196,6 +209,7 @@ def clr():
     plt.close('all')
     plt.cla()
     plt.clf()
+
     
 def title(t):
     '''

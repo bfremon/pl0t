@@ -33,3 +33,8 @@ bplt('cat', 'val', df)
 tu.save(f_prefix)
 #shw()
 cls()
+
+r = bplt('cat', 'val', df)
+r.set(xscale='log')
+tu.save(f_prefix + 'ret_x_scale_log')
+clr()

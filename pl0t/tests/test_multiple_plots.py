@@ -50,6 +50,7 @@ def test__panel(graphs_nb=10):
     pl0t.__panel('cat', d, yval='y', xval='x')
     tu.save(f_prefix + 'scat-' + str(graphs_nb))
 
+
 #test__panel()
 #test__panel(50)
 

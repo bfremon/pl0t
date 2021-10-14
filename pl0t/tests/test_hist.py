@@ -16,3 +16,8 @@ hist(x1, x2, x3, x4, stat='probability')
 title('Test title')
 tu.save(f_prefix)
 cls()
+
+r = hist(x1, x2, x4, stat='probability')
+r.set(xscale='log')
+tu.save(f_prefix + 'ret_x_scale_log')
+clr()
