@@ -9,6 +9,8 @@ packages = python3-pip
 test: clean
 	$(python3) -m unittest discover
 
+install: pip
+
 pip: README.md setup.py .VERSION LICENCE pl0t/__init__.py pre
 	$(python3) ./setup.py --set-build
 	$(pip) install .
