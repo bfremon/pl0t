@@ -1,9 +1,9 @@
+.VERSION
 \#*\#
 \.#*
 \.~*
 __pycache__/
 pl0t/__pycache__/
 pl0t/*.pyc
-\.VERSION
 *.png
 *.svg
