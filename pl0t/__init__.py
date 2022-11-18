@@ -286,26 +286,42 @@ def set_titles(main=None, x_title=None, y_title=None):
         ytitle(y_title)
 
         
-def save(fname=None, dest_dir=None, dpi=1200, ext='.svg', transparent=True):
+def save(fname=None, dest_dir=None, dpi=1200, ext='svg', transparent=True):
     ''' 
     Save current graph in ext format with fname name in dest_dir
     dpi: pixels per inch
     transparent: background set or not to transparent
     '''
     filename = ''
-    destdir = os.getcwd()
+    dest_path = ''
     if not fname:
         for i in range(15):
             filename += random.choice(string.ascii_letters)
+        filename += '.' + ext
     else:
-        filename = fname
-    if dest_dir:
-        destdir = destdir
+        fname_toks = os.path.basename(fname).split('.')
+        if len(fname_toks) == 1:
+            if ext is None:
+                # should never happen as ext = 'svg' by default
+                raise SyntaxError('''No extension provided for filename 
+                (% given) and no extension provided''' % (fname))
+            else:
+                filename = fname + '.' + ext
+        else:
+            fname_ext = fname_toks[-1]
+            if ext and ext != fname_ext:
+                raise SyntaxError('''Provided ext (%s) is different from
+                filename extension (%s)''' % (ext, fname_ext))
+            filename = fname
+    if dest_dir is None:
+        dest_path = os.path.join(os.getcwd(), filename)
+    else:
+        dest_path = os.path.join(dest_dir, filename)
     plt.tight_layout()
     if transparent:
-        plt.savefig(os.path.join(destdir, filename + ext), dpi=dpi, transparent=True)
+        plt.savefig(dest_path, dpi=dpi, transparent=True)
     else:
-        plt.savefig(os.path.join(destdir, filename + ext), dpi=dpi, transparent=False)
+        plt.savefig(dest_path, dpi=dpi, transparent=False)
 
         
 def _prep_labels(*data, found_nD_data, data_cnt, cat=None, labels=None):
