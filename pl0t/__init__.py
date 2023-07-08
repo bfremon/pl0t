@@ -286,7 +286,7 @@ def set_titles(main=None, x_title=None, y_title=None):
         ytitle(y_title)
 
         
-def save(fname=None, dest_dir=None, dpi=1200, ext='svg', transparent=True):
+def save(fname=None, dest_dir=None, dpi=1200, ext='svg', transparent=False):
     ''' 
     Save current graph in ext format with fname name in dest_dir
     dpi: pixels per inch
