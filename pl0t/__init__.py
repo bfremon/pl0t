@@ -162,7 +162,7 @@ def hline(y, color='b', **kwargs):
         plt.axhline(y, **kwargs)
 
         
-def scat(x, y, **kwargs):
+def scat(x, y, ix = None, **kwargs):
     '''
     Plot a scatter plot
     x_val: 1D vector 
@@ -171,6 +171,8 @@ def scat(x, y, **kwargs):
     '''
     x_val = _prep_data(x)
     y_val = _prep_data(y)
+    if ix is not None:
+        ax  = get_ax_dim(ix, kwargs)
     ret = sns.scatterplot(x=x_val['value'], y=y_val['value'], **kwargs)
     return ret
 
@@ -286,6 +288,70 @@ def set_titles(main=None, x_title=None, y_title=None):
         ytitle(y_title)
 
         
+def xlim(start, end,  ax =  None):
+    if ax is not None:
+        ax[ax].set_xlim(start, end)
+    else:
+        set_xlim(start, end)
+
+        
+def ylim(start, end,  ax =  None):
+    if ax is not None:
+        ax[ax].set_xlim(start, end)
+    else:
+        set_xlim(start, end)
+
+        
+def _isint(ax, type_msg):
+    ret = True
+    try:
+        int(ax)
+    except TypeError:
+        ret = False
+        raise SyntaxError(type_msg)
+    except ValueError:
+        ret  = False
+        raise SyntaxError(type_msg)
+
+        
+def get_ax_dim(ix, kwargs):
+    ''' 
+    get Axes (assumed to be named ax) indixes
+    from ix passed by plotting functions
+    ix must not be passed in kwargs from calling functions
+    Can be only one positive, non integer or a 
+    tuple of 2 non-null positives integers
+    '''
+    # NOT WORKING 
+    if 'ax' in kwargs:
+        raise SyntaxError('Only ax = ... or ix = ... allowed')
+    for k in locals():
+        print(k)
+    # if not 'ax' in locals():
+    #     raise SyntaxError('target Axes ax needed')
+    ret = None
+    input_err_msg = 'ix can be only a non-null integer or a  tuple of 2 non null integers'
+    try:
+        len(ix)
+    except TypeError:
+        _isint(ix, input_err_msg)
+    else:        
+        if len(ix) == 2:
+            for tok in ix:
+                _isint(tok, input_err_msg)
+            ret = ax[ ix[0] ][ ix[1] ] 
+        elif len(ix) > 2:
+            raise SyntaxError(input_err_msg)
+        elif len(ix) == 1:
+            _isint(ix, input_err_msg)
+            ret = ax[ix] 
+        else:
+            raise SyntaxError(input_err_msg)
+    print(ix, ret)
+    return None
+    #    return ret
+
+        
 def save(fname=None, dest_dir=None, dpi=1200, ext='svg', transparent=False):
     ''' 
     Save current graph in ext format with fname name in dest_dir
@@ -361,7 +427,7 @@ def _prep_data(*data, cat=None, val=None, labels=None):
     sorting keys
     labels: can be either:
     - 'asis': cat or dict keys used for labels,
-    -  list of strings
+    - list of strings
     - set to None: incremental ints as labels
     Return a long pandas.DataFrame for plotting
     '''
@@ -421,6 +487,8 @@ def _prep_data(*data, cat=None, val=None, labels=None):
             for k in data[0]:
                 ret[labs[i]] = data[0][k]
                 i += 1
+        elif _is_df(data)[0] and labels is None:
+            raise SyntaxError()
         else:
             assert len(labs) == len(data[0][cat].unique())
             # data[0][val] = data[0][val].astype('float64')
