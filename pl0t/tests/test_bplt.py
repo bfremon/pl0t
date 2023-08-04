@@ -47,6 +47,6 @@ clr()
 
 r = bplt('cat', 'val', df, hue = 'hue_cat')
 r.set(xscale='log')
-tu.save(f_prefix + 'ret_x_scale_log')
+tu.save(f_prefix + 'ret_x_scale_log-hue')
 clr()
 
