@@ -8,3 +8,6 @@ pl0t/*.pyc
 *.png
 *.svg
 TODO
+build/
+pl0t.egg-info/
+venv/
