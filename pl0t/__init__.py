@@ -7,86 +7,82 @@ import numpy as np
 import string
 import random
 import os
-from Log import *
+from Log.Log import *
 
 set_dbg_lvl(True)
+set_warn_lvl(True)
 
 palette = 'deep'
 
-def hist(*data, labels=None, stat='count', palette=palette, **kwargs):
+def hist(*data, stat='count', palette=palette, **kwargs):
     '''
     Wrapper for seaborn histplot func:
     *data: 1D vectors to be plotted
-    labels: alternate labels for each 1D vector
     stat: can be either count, frequency, density or probability
     palette: eponymous
     **kwargs: any complementary options passed to histplot
     '''
     # TODO: palette option ?
-    dat = _prep_data(*data, labels=labels)
+    dat = _prep_data(*data)
     ret = sns.histplot(data=dat, x='value', hue='variable',
                   stat=stat, palette=palette, **kwargs)
     return ret
 
     
-def ind(*data, cat=None, val=None, labels=None, palette=palette, **kwargs):
+def ind(*data, cat=None, val=None, palette=palette, **kwargs):
     '''
     Wrapper for seaborn catplot func:
     *data: 1D vectors to be plotted
-    labels: alternate labels for each 1D vector
     palette: eponymous
     **kwargs: any complementary options passed to catplot
     '''
     # TODO: ret ? 
-    dat = _prep_data(*data, cat=cat, val=val, labels=labels)
+    dat = _prep_data(*data, cat=cat, val=val)
     ret = sns.stripplot(data=dat, y='variable', x='value',
                 palette=palette, jitter=True, **kwargs)
     return ret
 
 
-def bplt(cat, val, *data, labels=None, **kwargs):
+def bplt(cat, val, *data, **kwargs):
     '''
     Wrapper for seaborn boxplot func:
     cat: category column to be used
     val: value column
     *data: data dict or DataFrame 
-    labels: alternate labels for each 1D vector
     **kwargs: any complementary options passed to catplot
     '''
-    dat = _prep_data(*data, cat=cat, val=val, labels=labels)
+    dat = _prep_data(*data, cat=cat, val=val)
     ret = sns.boxplot(data=dat, y='variable', x='value', **kwargs)
     return ret
 
 
-def scat_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
+def scat_panel(cat, *data, ylab, xlab, col_nb=3, **kwargs):
     '''
     *data: data to be plotted
     cat: category column to be used
     ylab: y-axis variable column label
     xlab: x-axis variable column label (scatterplot)
     col_nb: number of columns (default to 3)
-    labels: alternate labels for each 1D vector
     **kwargs: any complementary options passed to gtype func
     '''
-    ret = __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='scat', col_nb=col_nb, labels=None, **kwargs)
+    ret = __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='scat', col_nb=col_nb,  **kwargs)
     return ret
 
 
-def lplot_panel(cat, *data, ylab, xlab, col_nb=3, labels=None, **kwargs):
+def lplot_panel(cat, *data, ylab, xlab, col_nb=3, **kwargs):
     '''
     *data: data to be plotted
     cat: category column to be used
     ylab: y-axis variable column label
     xlab: x-axis variable column label (scatterplot)
     col_nb: number of columns (default to 3)
-    labels: alternate labels for each 1D vector
     **kwargs: any complementary options passed to gtype func
     '''
-    ret = __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='lplot', col_nb=col_nb, labels=None, **kwargs)
+    ret = __panel(cat, *data, ylab=ylab, xlab=xlab, gtype='lplot', col_nb=col_nb,  **kwargs)
     return ret
 
 
-def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, labels=None, **kwargs):
+def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, **kwargs):
     '''
     Wrapper to plot graphs panels:
     gtype: graphe type (scatterplot or individual plot)
@@ -95,7 +91,6 @@ def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, labels=None, **
     ylab: y-axis variable column label
     xlab: x-axis variable column label (scatterplot)
     col_nb: number of columns (default to 3)
-    labels: alternate labels for each 1D vector
     **kwargs: any complementary options passed to gtype func
     '''
     allowed_graphs = ['scat', 'lplot']
@@ -299,7 +294,7 @@ def ylim(start, end,  ax =  None):
     if ax is not None:
         ax[ax].set_xlim(start, end)
     else:
-        set_xlim(start, end)
+         set_xlim(start, end)
 
         
 def _isint(ax, type_msg):
@@ -387,123 +382,138 @@ def save(fname=None, dest_dir=None, dpi=1200, ext='svg', transparent=False):
     if transparent:
         plt.savefig(dest_path, dpi=dpi, transparent=True)
     else:
-        plt.savefig(dest_path, dpi=dpi, transparent=False)
+        plt.savefig(dest_path, dpi=dpi, transparent=False)     
 
-        
-def _prep_labels(*data, found_nD_data, data_cnt, cat=None, labels=None):
-    ret = None
-    if labels:
-        if labels == "asis":
-            if not found_nD_data:
-                raise SyntaxError("labels=\'as is\' only allowed for dict or DataFrame")
-            try:
-                ret = list(data[0].keys())
-            except KeyError:
-                ret = data[0][cat].unique()
-        else:
-            if not found_nD_data:
-                if len(labels) != len(data):
-                    raise SyntaxError('As many labels needed as 1D vectors')
-            elif _is_dict(data[0]):
-                if len(labels) != len(data[0]):
-                    raise SyntaxError('As many labels needed as dict keys')
-            elif _is_df(data[0]):
-                if len(labels) != len(data[0][cat].unique()):
-                    raise SyntaxError('As many labels needed as categories')
-            ret = labels
-    else:
-        ret = [i for i in range(data_cnt)]
-    assert len(ret) != None
+def _val_arg_ignored(data_type):
+    warn('%s: val argument not used')
+
+
+def _is_list_of_scalars(lst):
+    ''' 
+    Return True if lst is a list of lists composed only of 
+    scalars
+    '''
+    ret = True
+    for l in lst:
+        if l is None:
+            ret = False
+            break
+        try:
+            pd.Series(l, dtype = 'float')
+        except ValueError:
+            ret = False
+            break
     return ret
 
 
-def _prep_data(*data, cat=None, val=None, labels=None):
+def _prep_data(data, cat = None, val = None):
     '''
-    Sanitize input for plotting:
-    *data: to be plotted - can be either:
-    - 1D vectors (simple lists, 1D numpy arrays or pandas.Series)
-    - a dict
-    - a pandas.Dataframe with cat specifying the column holding the 
-    sorting keys
-    labels: can be either:
-    - 'asis': cat or dict keys used for labels,
-    - list of strings
-    - set to None: incremental ints as labels
-    Return a long pandas.DataFrame for plotting
+    Format data for plotting using for input such as:
+    - A dictionnary of lists (padded with Nan if necessary) with keys as categories (val & cat args  ignored
+    with warning), Each list must composed of scalars.
+    - A pandas dataframe in short form, using columns names as categories and column content 
+    for plotting (val ignored with warning), 
+    - A pandas dataframe in pseudo-long form using column name as categories and val as variable
+    data,
+    - A list of of lists (padded with NaN if necessary) with columns provided by the cat arg as 
+    categories (val ignored with warning). 
+    Return a long form DataFrame (val column for variable data, cat column for cat,
+    and possibly with other columns for hue plotting)
     '''
+    # lol axis = 0 or axis = 1 / prep_data public ou privé, val comme indicaeur ??
     ret = {}
-    labs = None
-    found_nD_data = False # bool set to True if dict or DataFrame found
-    data_cnt = 0
-    for v in data:
-        data_cnt += 1
-
-        # Only 1D or nD data allowed (not at the same time) 
-        if _is_df(v) or _is_dict(v):
-            if not found_nD_data:
-                found_nD_data = True
-        if data_cnt > 1 and found_nD_data:
-            raise SyntaxError('1D and nD data mixing not allowed')
-
-        # Only non null data allowed
-        if _is_df(v):
-            if v.empty: 
-                raise SyntaxError('%s: no data to parse' % v)
-        elif isinstance(v, np.ndarray):
-            if len(v) == 0:
-                raise SyntaxError('%s: no data to parse' % v)
-        elif isinstance(v, pd.Series):
-            if v.empty:
-                raise SyntaxError('%s: no data to parse' % v)
-        elif v == None  or str(v) == '' or v == {} or v == [] :
-            raise SyntaxError('%s: no data to parse' % v)
-
-    # looking for cat / val param
-    if found_nD_data:
-        if _is_df(data[0]):
-            if not cat:
-                raise SyntaxError('categorical key needed for DataFrame')
-            if not cat in data[0]:
-                raise SyntaxError('%s column not found in Dataframe' % cat)
-            if not val: 
-                raise SyntaxError('value key needed for DataFrame')
-            if not val in data[0]:
-                raise SyntaxError('%s column not found in DataFrame')
-            
-    # labels parsing
-    if found_nD_data:
-        if _is_dict(data[0]):
-            data_cnt = len(data[0].keys())
-        else:
-            data_cnt = len(data[0][cat].unique())
-    labs = _prep_labels(*data, found_nD_data=found_nD_data,
-                        data_cnt=data_cnt, cat=cat, labels=labels)
-
-    # data aggregation    
-    if found_nD_data:
-        if _is_dict(data[0]):
-            assert len(labs) == len(data[0].keys())
-            i = 0
-            for k in data[0]:
-                ret[labs[i]] = data[0][k]
-                i += 1
-        elif _is_df(data)[0] and labels is None:
-            raise SyntaxError()
-        else:
-            assert len(labs) == len(data[0][cat].unique())
-            # data[0][val] = data[0][val].astype('float64')
-            # data[0][cat] = data[0][cat].astype('category')
-            ret = data[0][[cat, val]]
-            ret.columns = ('variable', 'value')
-            return ret
+    empty_msg = 'Empty data or scalar'
+    cat_missing_msg = 'Category column needed (cat != None)'
+    val_missing_msg = 'Variable column needed (val != None)'
+    try:
+        len(data)
+    except TypeError:
+        raise TypeError(empty_msg)
+    if len(data) < 1:
+        raise TypeError(empty_msg)
+    if _is_dict(data):
+        if cat is not None or val is not None:
+            warn('cat and args values ignored for dict')
+        ret = _prep_dict(data, cat = cat, val = val)
+    elif _is_df(data):
+        if cat is not None and val is not None:
+            ret = _prep_long_df(data, cat = cat, val = val)
+        elif cat is None and val is None:
+            ret = _prep_short_df(data, cat = cat, val = val)
     else:
-        assert len(data) == len(labs)
-        for i in range(len(data)):
-            ret[labs[i]] = data[i]
-            
-    return pd.DataFrame(ret).melt()
+        # list of lists
+        if not _is_list_of_scalars(data):
+            raise SyntaxError('data should be only composed of scalar lists')
+        if len(data) != len(cat):
+            raise SyntaxError('cat must have an equal lengh to data for list of lists')
+        if val is not None:
+            warn('val is not used for list of lists')
+        ret  = _prep_listoflists(data, cat = cat, val = val)
+    return ret
 
 
+def _prep_dict(data, cat, val):
+    max_len = 0
+    ret = {}
+    for k in data:
+        try:
+            pd.Series(data[k], dtype = 'float')
+        except ValueError:
+            raise ValueError('Only scalar lists allowed for dict as data')
+        if len(data[k]) > max_len:
+            max_len = len(data[k])
+    for k in data:
+        if len(data[k]) < max_len:
+            pad_len = max_len - len(data[k])
+            padded_list = data[k] + [ np.nan for i in range(pad_len) ]
+            ret[k] = padded_list
+        else:
+            ret[k] = data[k]
+    ret = pd.DataFrame(ret).melt()
+    ret.rename(columns = {'variable': 'cat', 'value': 'val'},
+            inplace = True)
+    return ret
+
+    
+def _prep_long_df(data, cat, val):
+    ret = data.copy()
+    ret = ret[ [cat, val] ]
+    ret.rename(columns = { cat: 'cat', val: 'val'},
+               inplace = True)
+    return ret
+
+
+def _prep_short_df(data, cat, val):
+    ret = data.copy()
+    ret = ret.melt()
+    ret.rename(columns = { 'variable': 'cat', 'value': 'val'},
+               inplace = True)
+    return ret    
+
+
+def _prep_listoflists(data, cat, val):
+    ret = {}
+    warn('list of lists: cat data used to label lists with no guaranteed order')
+    max_len = 0
+    for l in data:
+        if len(l) > max_len:
+            max_len = len(l)
+    for i in range(len(data)):
+        cur_cat = cat[i]                   
+        if cur_cat  in ret:
+            raise ValueError('duplicate %s category' % cur_cat)
+        if len(data[i]) < max_len:
+            pad_len = max_len - len(data[i])
+            padded_list = data[i] + [ np.nan for n in range(pad_len) ]
+            ret[cur_cat]  = padded_list
+        else:
+            ret[cur_cat] = data[i]
+    ret = pd.DataFrame(ret).melt()
+    ret.rename(columns = {'variable': 'cat', 'value': 'val'},
+               inplace = True)
+    return ret
+
+        
 def _is_dict(d):
     ret = True
     if not isinstance(d, dict):
@@ -516,3 +526,4 @@ def _is_df(df):
     if not isinstance(df, pd.DataFrame):
         ret = False
     return ret
+

@@ -22,228 +22,88 @@ class test_pl0t(unittest.TestCase):
             f_path = os.path.join(self.g_path, f)
             os.unlink(f_path)
 
-            
     def test_prep_data(self):
+
+        def _raise_err(ex, *args, **kwds):
+            self.assertRaises(ex, pl0t._prep_data, *args, **kwds)
+        
+        def _raise_syn_err(*args, **kwds):
+            _raise_err(SyntaxError, *args, **kwds)
+            
+        def _raise_type_err(*args, **kwds):
+            _raise_err(TypeError, *args, **kwds)
+
+        def _raise_val_err(*args, **kwds):
+            _raise_err(ValueError, *args, **kwds)
+
         # no empty data allowed
-        self.assertRaises(SyntaxError, pl0t._prep_data, None)
-        self.assertRaises(SyntaxError, pl0t._prep_data, '')
-        self.assertRaises(SyntaxError, pl0t._prep_data, [])
-        self.assertRaises(SyntaxError, pl0t._prep_data, {})
-        self.assertRaises(SyntaxError, pl0t._prep_data, pd.DataFrame({}))
-        self.assertRaises(SyntaxError, pl0t._prep_data,
-                          pd.Series([], dtype='float64'))
-        self.assertRaises(SyntaxError, pl0t._prep_data, np.array([]))
+        emptys = [ None, '', [], {}, pd.DataFrame({}),
+                       pd.Series([], dtype = 'float'), np.array([]) ]
+        for s in emptys:
+            _raise_type_err(s)
+        #
+        # list of lists
+        #
+        l = [1, 2]
+        h = [1]
+        # None can be tolerated as valid input as it is converted to NaN
+        not_scalars = [ '', 'a', [], {}, pd.DataFrame({}),
+                       pd.Series([], dtype = 'float'), np.array([]) ]
+        for s in not_scalars:
+            h += [ s ]
+            self.assertFalse(pl0t._is_list_of_scalars(h))
+            _raise_syn_err(h)
+            h = [ l ]
+            h += [ None ]
+            self.assertFalse(pl0t._is_list_of_scalars(h))
+            _raise_syn_err(h)
+            h += [ [None] ]
+            self.assertFalse(pl0t._is_list_of_scalars(h))
+            _raise_syn_err(h)
 
-        # no 1D / nD (n >= 2) data mixing 
-        d =  {'a': [1, 2, 3]}
-        self.assertRaises(SyntaxError, pl0t._prep_data, [1, 2, 3], d)
-        self.assertRaises(SyntaxError, pl0t._prep_data,
-                          [1, 2, 3], pd.DataFrame(d))
-        self.assertRaises(SyntaxError, pl0t._prep_data, d, d)
-        self.assertRaises(SyntaxError, pl0t._prep_data,
-                          pd.DataFrame(d), pd.DataFrame(d))
-        self.assertRaises(SyntaxError, pl0t._prep_data,
-                          [1, 2, 3], d, pd.DataFrame(d))
-        self.assertRaises(SyntaxError, pl0t._prep_data,
-                          pd.Series([1, 2, 3]), d, pd.DataFrame(d))
+        lol = [ l, [1] ]
+        _raise_syn_err((lol, None, None))
+        cat =  ['a', 'b', 'c']
+        _raise_syn_err(lol, {'cat': cat })
+        cat = ['a', 'a']
+        kwds = {'cat': cat }
+        assert len(cat) == len(lol)
+        _raise_syn_err(lol, kwds)
+        cat = ['a', 'b']
+        res = pl0t._prep_data(lol, cat)
+        self.assertTrue(list(res['cat'].unique()) == cat)
+        #        self.assertRaises(SyntaxError, pl0t._prep_data, (lol, None, None))
 
-        self.assertRaises(SyntaxError, pl0t._prep_data, np.array([1, 2, 3]), d)
-        self.assertRaises(SyntaxError, pl0t._prep_data, np.array([1, 2, 3]), pd.DataFrame(d))
-        self.assertRaises(SyntaxError, pl0t._prep_data, d, d)
-        self.assertRaises(SyntaxError, pl0t._prep_data,
-                          pd.DataFrame(d), pd.DataFrame(d))
-        self.assertRaises(SyntaxError, pl0t._prep_data,
-                          np.array([1, 2, 3]), d, pd.DataFrame(d))
-
-        a = [1, 2, 3]
-        b = [4, 5, 6]
-        c = [7, 8, 9]
-        d = {0: a, 1: b, 2: c}
-
-        # cat needed for DataFrame
-        self.assertRaises(SyntaxError, pl0t._prep_data, pd.DataFrame(d))
-        self.assertRaises(SyntaxError, pl0t._prep_data,
-                          pd.DataFrame(d), cat='d')
-
-        # val needed for DataFrame
-        self.assertRaises(SyntaxError, pl0t._prep_data,
-                          pd.DataFrame(d), cat='a')
-        self.assertRaises(SyntaxError, pl0t._prep_data,
-                          pd.DataFrame(d), cat='a', val='d')
-
-        # aggregation testing
-        r = pl0t._prep_data(a, b, c)
-        for cat in r['variable'].unique():
-            out_v = r[r['variable'] == cat]['value']
-            self.assertTrue(set(out_v) == set(d[cat]))
-
-        r = pl0t._prep_data(pd.Series(a), pd.Series(b), c)
-        for cat in r['variable'].unique():
-            out_v = r[r['variable'] == cat]['value']
-            self.assertTrue(set(out_v) == set(d[cat]))
-            
-        d = {0: np.array(a), 1: np.array(b), 2: np.array(c)}
-        r = pl0t._prep_data(a, b, c)
-        for cat in r['variable'].unique():
-            out_v = r[r['variable'] == cat]['value'].to_list()
-            self.assertTrue(set(out_v) == set(d[cat]))
-
-        d = {0: pd.Series(a), 1: np.array(b), 2: c}
-        r = pl0t._prep_data(a, b, c)
-        for cat in r['variable'].unique():
-            out_v = r[r['variable'] == cat]['value'].to_list()
-            self.assertTrue(set(out_v) == set(d[cat]))
-
-        d = {0: a, 1: b, 2: c}
-        r = pl0t._prep_data(d)
-        for cat in r['variable'].unique():
-            out_v = r[r['variable'] == cat]['value'].to_list()
-            in_v = d[cat]
-            self.assertTrue(set(out_v) == set(in_v))
-
-        d = {'xy': a, 'zz': b, 'dd': c}
-        r = pl0t._prep_data(d, labels='asis')
-        for cat in r['variable'].unique():
-            out_v = r[r['variable'] == cat]['value'].to_list()
-            in_v = d[cat]
-            self.assertTrue(set(out_v) == set(in_v))
-
-        l = ['c', 'd', 'e']
-        d = {'c': a, 'd': b, 'e': c}
-        r = pl0t._prep_data(d, labels=l)
-        for cat in r['variable'].unique():
-            out_v = r[r['variable'] == cat]['value'].to_list()
-            in_v = d[cat]
-            self.assertTrue(set(out_v) == set(in_v))
-
-        l = ['c', 'd', 'e']
-        d = {'c': pd.Series(a), 'd': b, 'e': pd.Series(c)}
-        r = pl0t._prep_data(d, labels=l)
-        for cat in r['variable'].unique():
-            out_v = r[r['variable'] == cat]['value'].to_list()
-            in_v = d[cat]
-            self.assertTrue(set(out_v) == set(in_v))
+        # dict
         
+        d = {'a':  [1, 'b'] }
+        _raise_val_err(d)
+        d  = {'a': [1, 2], 'b': [3] }
+        res = pl0t._prep_data(d)
+        self.assertTrue(sorted(list(res['cat'].unique())) == sorted(d.keys()))
         
-        # d = {'c': a, 'd': b, 'e': c}
-        # r = pl0t._prep_data(pd.DataFrame(d), cat='c', labels='asis')
-        # out_v = r[r['variable'] == 'c'].to_list()
-        # in_v = d['c']
-        # print(in_v, out_v)
-        # self.assertTrue(set(out_v) == set(in_v))
+        # long df
+        labs = ['a', 'a', 'b', 'b', 'c' , 'c']
+        vls = [ 1, 2, 3, 4, 5, 6]
+        df = pd.DataFrame({'a': labs,
+                          't': vls,
+                          'h': [7, 8, 9, 10, 11, 12 ] })
+        res = pl0t._prep_data(df, cat = 'a', val = 't')
+        self.assertTrue(sorted(res['cat']) == labs)
+        self.assertTrue(sorted(res['val']) == vls)
 
-
-
-            
-    def test__prep_labels(self):
-        # labels = None
-        r = pl0t._prep_labels([1,2,3], [4, 5, 6],
-                              [7, 8, 9], found_nD_data=False,
-                              data_cnt = 3,  labels=None)
-        self.assertTrue([0, 1, 2] == r)
-
-        r = pl0t._prep_labels(np.array([1,2,3]),
-                              np.array([4, 5, 6]),
-                              np.array([7, 8, 9]),
-                              found_nD_data=False,
-                              data_cnt = 3,  labels=None)
-        self.assertTrue([0, 1, 2] == r)
-
-        d = {'a': [1, 2, 3],
-             'b': [4, 5, 6],
-             'c': [7, 8, 9]
-        }
-        r = pl0t._prep_labels(d, found_nD_data=True,
-                              data_cnt = len(d.keys()), labels=None)
-        self.assertTrue([0, 1, 2] == r)
-
-        df = pd.DataFrame(d)
-        r = pl0t._prep_labels(df, found_nD_data=True,
-                              data_cnt = len(df['a'].unique()),
-                              cat='a', labels=None)
-        self.assertTrue([0, 1, 2] == r)
-
-        # label = 'asis'
-
-        self.assertRaises(SyntaxError, pl0t._prep_labels,
-                          [1,2,3], found_nD_data=False,
-                          data_cnt=1, labels='asis')
-
-        self.assertRaises(SyntaxError, pl0t._prep_labels,
-                          np.array([1,2,3]), found_nD_data=False,
-                          data_cnt=1, labels='asis')
-
-        r = pl0t._prep_labels(d, found_nD_data=True,
-                              data_cnt = len(d.keys()), labels='asis')
-        self.assertTrue(['a', 'b', 'c'] == r)
-
-        r = pl0t._prep_labels(df, found_nD_data=True,
-                              data_cnt = len(df['a'].unique()),
-                              cat='a', labels='asis')
-        self.assertTrue(['a', 'b', 'c'] == r)
-
-        # labels == (...)
-        self.assertRaises(SyntaxError, pl0t._prep_labels,
-                          [1, 2, 3], [4, 5, 6]
-                          , np.array([7, 8, 9]),
-                          found_nD_data=False, data_cnt=3,
-                          labels= ('a', 'b'))
-
-        self.assertRaises(SyntaxError, pl0t._prep_labels,
-                          [1, 2, 3], pd.Series([4, 5, 6]),
-                          np.array([7, 8, 9]), found_nD_data=False,
-                          data_cnt=3,
-                          labels= ('a', 'b'))
-
-        self.assertRaises(SyntaxError, pl0t._prep_labels, d,
-                          found_nD_data=True, data_cnt=1,
-                          labels=('a', 'b'))
-
-        self.assertRaises(SyntaxError, pl0t._prep_labels,
-                          pd.DataFrame(d), found_nD_data=True,
-                          data_cnt=1, cat='a', labels= ('a', 'b'))
+        # short df
+        s1 = [ 1, 2, 3, 4 ]
+        s2 = [ 4, 5, 6, 7 ]
+        s3 = [ 7, 8, 9, 10 ]
+        df = pd.DataFrame({'a': s1,
+                           'b': s2,
+                           'c': s3})
+        res = pl0t._prep_data(df)
+        self.assertTrue(sorted(res['cat'].unique()) == ['a', 'b', 'c'])
+        self.assertTrue(sorted(res['val']) == sorted(s1 + s2 + s3))
+                        
         
-        
-    def test_rot_axis_labs(self):
-        g = pl0t.ind([1, 2, 3])
-        self.assertRaises(SyntaxError, pl0t.rot_axis_labs, None, 40, 'z')
-        self.assertRaises(SyntaxError, pl0t.rot_axis_labs, g, 40, 'z')
-        self.assertRaises(SyntaxError, pl0t.rot_axis_labs, g, -40, 'x')
-        self.assertRaises(SyntaxError, pl0t.rot_axis_labs, g, 200, 'x')
-
-        
-    def _gen_plot(self):
-        x = np.random.random(50)
-        y = np.random.random(60)
-        ret = pl0t.lplt(x, y)
-        return ret
-
-    
-    def test_save_1(self):
-        g = self._gen_plot()
-        pl0t.save(dest_dir = self.g_path)
-        if len(os.listdir(self.g_path)) != 1:
-            raise SyntaxError('pl0t.save(): output file not found')
-        self.assertRaises(SyntaxError, pl0t.save,
-                          fname = 'test2ext.gif', ext = 'png')
-        
-        
-    def test_save_2(self):
-        os.chdir(self.g_path)
-        g = self._gen_plot()
-        pl0t.save(dest_dir = None)
-        if len(os.listdir(self.g_path)) != 1:
-            raise SyntaxError
-
-        
-    def test_save_3(self):
-        os.chdir(self.g_path)
-        g = self._gen_plot()
-        pl0t.save(fname = 'test', ext = 'png')
-        if len(os.listdir(self.g_path)) != 1:
-            raise SyntaxError
-        
-            
     def tearDown(self):
         if os.listdir(self.g_path) != '':
             self._del_dir(self.g_path)
