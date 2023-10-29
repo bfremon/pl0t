@@ -24,7 +24,7 @@ def hist(*data, stat='count', palette=palette, **kwargs):
     '''
     # TODO: palette option ?
     dat = _prep_data(*data)
-    ret = sns.histplot(data=dat, x='value', hue='variable',
+    ret = sns.histplot(data=dat, x='val', hue='cat',
                   stat=stat, palette=palette, **kwargs)
     return ret
 
@@ -38,7 +38,7 @@ def ind(*data, cat=None, val=None, palette=palette, **kwargs):
     '''
     # TODO: ret ? 
     dat = _prep_data(*data, cat=cat, val=val)
-    ret = sns.stripplot(data=dat, y='variable', x='value',
+    ret = sns.stripplot(data=dat, y='cat', x='val',
                 palette=palette, jitter=True, **kwargs)
     return ret
 
@@ -52,7 +52,7 @@ def bplt(cat, val, *data, **kwargs):
     **kwargs: any complementary options passed to catplot
     '''
     dat = _prep_data(*data, cat=cat, val=val)
-    ret = sns.boxplot(data=dat, y='variable', x='value', **kwargs)
+    ret = sns.boxplot(data=dat, y='cat', x='val', **kwargs)
     return ret
 
 
@@ -168,7 +168,7 @@ def scat(x, y, ix = None, **kwargs):
     y_val = _prep_data(y)
     if ix is not None:
         ax  = get_ax_dim(ix, kwargs)
-    ret = sns.scatterplot(x=x_val['value'], y=y_val['value'], **kwargs)
+    ret = sns.scatterplot(x=x_val['val'], y=y_val['val'], **kwargs)
     return ret
 
 
@@ -181,7 +181,7 @@ def lplt(x, y, **kwargs):
     '''
     x_val = _prep_data(x)
     y_val = _prep_data(y)
-    ret = sns.lineplot(x=x_val['value'], y=y_val['value'], **kwargs)
+    ret = sns.lineplot(x=x_val['val'], y=y_val['val'], **kwargs)
     return ret
 
 
@@ -406,9 +406,68 @@ def _is_list_of_scalars(lst):
     return ret
 
 
-def _prep_data(data, cat = None, val = None):
+def _get_var_name(var):
+    ret = None
+    globals_dict = globals()
+    for k in globals_dict:
+        if var is globals_dict[k]:
+            ret = k
+            break
+    return str(k)
+
+
+def _is_1D_vec(vec):
+    ret = True
+    try:
+        pd.Series(vec, dtype = 'float')
+    except TypeError:
+        ret = False
+    except ValueError:
+        ret  = False
+    return ret
+
+
+def _prep_data(*data, cat = None, val = None):
+    '''*data must hold only 1D scalars arrays'''
+    dat_idx = 0
+    only_1D_scalars_msg = 'Only multiple 1D args are allowed'
+    ret = {}
+    if len(data) > 1:
+        max_len = 0
+        for dat in data:
+            if  not _is_1D_vec(dat) or _is_dict(dat) or _is_df(dat):
+                raise SyntaxError(only_1D_scalars_msg)
+            if len(dat) > max_len:
+                max_len = len(dat)
+        if cat:
+            if len(cat) != len(data):
+                raise SyntaxError('Same lenght required for 1D data and cat')
+        cat_idx = 0
+        concat_data  = {}
+        for dat in data:
+            if cat is None:
+                series_name = _get_var_name(dat)
+            else:
+                series_name = cat[cat_idx]
+            if len(dat) < max_len:
+                pad_len = max_len - len(dat)
+                padded_dat = dat  + [ np.nan for i in range(pad_len) ]
+            else:
+                padded_dat = dat
+            if not series_name in concat_data:
+                concat_data[series_name] = padded_dat
+            else:
+                concat_data[series_name + str(cat_idx)] = padded_dat
+            cat_idx += 1
+        ret = __prep_data(concat_data, cat = cat, val = val)
+    else:
+        ret  = __prep_data(data[0], cat = cat, val = val)
+    return ret 
+
+
+def __prep_data(data, cat = None, val = None):
     '''
-    Format data for plotting using for input such as:
+    Format data __singleton__ for plotting using for input such as:
     - A dictionnary of lists (padded with Nan if necessary) with keys as categories (val & cat args  ignored
     with warning), Each list must composed of scalars.
     - A pandas dataframe in short form, using columns names as categories and column content 
@@ -429,7 +488,7 @@ def _prep_data(data, cat = None, val = None):
         len(data)
     except TypeError:
         raise TypeError(empty_msg)
-    if len(data) < 1:
+    if len(data) < 1 or data is None:
         raise TypeError(empty_msg)
     if _is_dict(data):
         if cat is not None or val is not None:
@@ -440,11 +499,21 @@ def _prep_data(data, cat = None, val = None):
             ret = _prep_long_df(data, cat = cat, val = val)
         elif cat is None and val is None:
             ret = _prep_short_df(data, cat = cat, val = val)
+    elif _is_1D_vec(data):
+        if cat is None:
+            series_name = _get_var_name(data)
+        else:
+            series_name = cat[0]
+        print(series_name)
+        ret = pd.Series(data, dtype = 'float', name = series_name)
+        ret = pd.DataFrame(ret).melt()
+        ret.rename(columns = {'value': 'val', 'variable': 'cat'},
+                   inplace = True)
     else:
         # list of lists
         if not _is_list_of_scalars(data):
             raise SyntaxError('data should be only composed of scalar lists')
-        if len(data) != len(cat):
+        if (cat is not None) and (len(data) != len(cat)):
             raise SyntaxError('cat must have an equal lengh to data for list of lists')
         if val is not None:
             warn('val is not used for list of lists')
@@ -493,9 +562,17 @@ def _prep_short_df(data, cat, val):
 
 def _prep_listoflists(data, cat, val):
     ret = {}
+    if cat is None:
+        warn('No cat provided, using monotonic labels instead')
+        cat = [str(i) for i in range(len(data)) ]
     warn('list of lists: cat data used to label lists with no guaranteed order')
     max_len = 0
     for l in data:
+        try:
+            len(l)
+        except TypeError:
+            # l can be a scalar
+            l = [ l ]
         if len(l) > max_len:
             max_len = len(l)
     for i in range(len(data)):
