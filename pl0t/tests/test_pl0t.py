@@ -37,13 +37,14 @@ class test_pl0t(unittest.TestCase):
             _raise_err(ValueError, *args, **kwds)
 
         # no empty data allowed
+
         emptys = [ None, '', [], {}, pd.DataFrame({}),
                        pd.Series([], dtype = 'float'), np.array([]) ]
         for s in emptys:
             _raise_type_err(s)
-        #
+        
         # list of lists
-        #
+
         l = [1, 2]
         h = [1]
         # None can be tolerated as valid input as it is converted to NaN
@@ -62,7 +63,7 @@ class test_pl0t(unittest.TestCase):
             _raise_syn_err(h)
 
         lol = [ l, [1] ]
-        _raise_syn_err((lol, None, None))
+        _raise_syn_err(lol,  None, None)
         cat =  ['a', 'b', 'c']
         _raise_syn_err(lol, {'cat': cat })
         cat = ['a', 'a']
@@ -70,7 +71,7 @@ class test_pl0t(unittest.TestCase):
         assert len(cat) == len(lol)
         _raise_syn_err(lol, kwds)
         cat = ['a', 'b']
-        res = pl0t._prep_data(lol, cat)
+        res = pl0t._prep_data(lol, cat = cat)
         self.assertTrue(list(res['cat'].unique()) == cat)
         #        self.assertRaises(SyntaxError, pl0t._prep_data, (lol, None, None))
 
@@ -103,7 +104,33 @@ class test_pl0t(unittest.TestCase):
         self.assertTrue(sorted(res['cat'].unique()) == ['a', 'b', 'c'])
         self.assertTrue(sorted(res['val']) == sorted(s1 + s2 + s3))
                         
+        # mixed data
+
+        l1 = [ 1, 2, 3 ]
+        l2 = [4, 5, 6 ]
+        l3 = [6, 7, 8 ]
+        d = {'a' : l1, 'b': l1 }
+        df = pd.DataFrame(d)
+
+        _raise_syn_err(l1, d)
+        _raise_syn_err(l1, df)
+        _raise_syn_err(df, d)        
+
+        res = pl0t._prep_data(l1, l2, l3)
+        #        self.assertTrue(sorted(res['cat'].unique()) == ['l1', 'l2', 'l3'] )
+        self.assertTrue(sorted(res['val'])== l1 + l2 + l3)
         
+        res = pl0t._prep_data(l1, l2, l3, cat = ['l1', 'l2', 'l3'])
+        self.assertTrue(sorted(res['cat'].unique()) == ['l1', 'l2', 'l3'] )
+        self.assertTrue(sorted(res['val'])== l1 + l2 + l3)
+
+        # 1D vec
+        x = np.random.normal(10, 5, 100)
+        res = pl0t._prep_data(x)
+        #self.assertTrue(sorted(res['cat']).unique() == 'x')
+        self.assertTrue(sorted(res['val']) == sorted(x))
+
+
     def tearDown(self):
         if os.listdir(self.g_path) != '':
             self._del_dir(self.g_path)
