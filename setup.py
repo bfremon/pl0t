@@ -95,6 +95,7 @@ if __name__ == '__main__':
                 "License :: OSI Approved :: MIT License",
                 "Operating System :: OS Independent",
             ],
+            data_files = ['.VERSION'],
             python_requires='>=3.6'
         )
 
