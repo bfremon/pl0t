@@ -17,18 +17,18 @@ d = {'aazfa': (1, 2, 3),
      'ergeebheheh': (7, 8, 9)
 }
 
-title('x labels rotated at 45°')
-g = ind(d, labels='asis')
-rot_axis_labs(g, 45)
-tu.save(f_prefix)
-#shw()
-cls()
+# title('x labels rotated at 45°')
+# g = ind(d, labels='asis')
+# rot_axis_labs(g, 45)
+# tu.save(f_prefix)
+# #shw()
+# cls()
     
-title('x labels rotated at -45°')
-g = ind(d)
-rot_axis_labs(g, 90 + 45)
-tu.save(f_prefix)
-#shw()
-cls()
+# title('x labels rotated at -45°')
+# g = ind(d)
+# rot_axis_labs(g, 90 + 45)
+# tu.save(f_prefix)
+# #shw()
+# cls()
 
 

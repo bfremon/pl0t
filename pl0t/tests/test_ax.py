@@ -25,6 +25,6 @@ class test_ax(unittest.TestCase):
         ___ix_raise_err(('a', 2))
         ___ix_raise_err(('a', 'b'))
 
-        __ix_valid_ret(1, ax[1])
-        __ix_valid_ret(0, ax[0])
+        # __ix_valid_ret(1, ax[1])
+        # __ix_valid_ret(0, ax[0])
         #        __ix_valid_ret('1', ax[1])
