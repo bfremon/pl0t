@@ -11,3 +11,8 @@ TODO
 build/
 pl0t.egg-info/
 venv/
+deb_dist/
+dist/
+*.whl
+*.tar.gz
+*.deb
