@@ -11,8 +11,8 @@ vpip = $(venv_path)/bin/pip3
 
 packages = python3-pip
 
-test: clean_test venv
-	$(python3) -m unittest discover
+test: clean_test 
+	. $(venv_path)/bin/activate && $(vpy) -m unittest discover
 
 pip: venv README.md setup.py .VERSION LICENCE pl0t/__init__.py
 	$(vpy) ./setup.py --set-build
