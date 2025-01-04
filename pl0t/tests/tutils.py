@@ -11,6 +11,7 @@ def rnd_str(l=8):
         ret += random.choice(string.ascii_letters)
     return ret
 
+
 def save(pfx, dest_path = None):
     if dest_path is None:
         # tmp dir is in ../../tmp
@@ -18,3 +19,12 @@ def save(pfx, dest_path = None):
         if not os.path.exists(dest_path):
             os.mkdir(dest_path)
     pl0t.save(fname = os.path.join(dest_path, pfx + rnd_str()))
+
+    
+def gen_norm_vec(mu, std, n_vals):
+    ret = []
+    for i in range(n_vals):
+        ret += [ random.normalvariate(mu, std) ]
+    return ret
+
+                 

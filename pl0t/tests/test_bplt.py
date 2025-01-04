@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import scipy
 import pandas as pd
 import seaborn as sns
 from pl0t import *
@@ -15,9 +14,8 @@ vals_n = 10**2
 mu = 20
 std = 5
 
-vals = [ scipy.stats.norm.rvs(mu * np.random.random(),
-                              std * np.random.random(),
-                              vals_n) for i in range(plots_n) ]
+vals = [ tu.gen_norm_vec(mu, std, vals_n)
+         for i in range(plots_n) ]
 
 dat = {'type': [], 'cat': [], 'val': [], 'hue_cat': []}
 
