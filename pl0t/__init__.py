@@ -38,8 +38,12 @@ def ind(*data, cat=None, val=None, palette=palette, **kwargs):
     '''
     # TODO: ret ? 
     dat = _prep_data(*data, cat=cat, val=val)
-    ret = sns.stripplot(data=dat, y='cat', x='val',
-                palette=palette, jitter=True, **kwargs)
+    if not 'hue' in kwargs:
+        ret = sns.stripplot(data=dat, y='cat', x='val',
+                            jitter=True, **kwargs)
+    else:
+        ret = sns.stripplot(data=dat, y='cat', x='val',
+                            palette=palette, jitter=True, **kwargs)
     return ret
 
 
@@ -112,7 +116,10 @@ def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, **kwargs):
     if col_nb > len(dat[cat].unique()):
         warn('Only one line will be plotted')
     ret = sns.FacetGrid(dat, col=cat, col_wrap=col_nb)
-    ret.map_dataframe(gfunc, data=dat, x=xlab, y=ylab, palette=palette)
+    if not 'hue' in kwargs:
+        ret.map_dataframe(gfunc, data=dat, x=xlab, y=ylab)
+    else:
+        ret.map_dataframe(gfunc, data=dat, x=xlab, y=ylab, palette = palette, hue = kwargs['hue'])
     return ret
 
 
