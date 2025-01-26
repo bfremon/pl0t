@@ -7,12 +7,9 @@ import numpy as np
 import string
 import random
 import os
-from Log.Log import *
-
-set_dbg_lvl(True)
-set_warn_lvl(True)
 
 palette = 'deep'
+out_dpi = 1200
 
 def hist(*data, stat='count', palette=palette, **kwargs):
     '''
@@ -354,7 +351,7 @@ def get_ax_dim(ix, kwargs):
     #    return ret
 
         
-def save(fname=None, dest_dir=None, dpi=1200, ext='svg', transparent=False):
+def save(fname=None, dest_dir=None, dpi=out_dpi, ext='svg', transparent=False):
     ''' 
     Save current graph in ext format with fname name in dest_dir
     dpi: pixels per inch
@@ -511,7 +508,6 @@ def __prep_data(data, cat = None, val = None):
             series_name = _get_var_name(data)
         else:
             series_name = cat[0]
-        print(series_name)
         ret = pd.Series(data, dtype = 'float', name = series_name)
         ret = pd.DataFrame(ret).melt()
         ret.rename(columns = {'value': 'val', 'variable': 'cat'},
