@@ -12,8 +12,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import unittest
 
-tmp_im_path = os.path.join(os.getcwd(), 'tmp_im')
-ref_im_path = os.path.join(os.getcwd(), 'ref_im')
+tmp_im_path = os.path.join(os.getcwd(), 'pl0t', 'tests', 'tmp_im')
+ref_im_path = os.path.join(os.getcwd(), 'pl0t', 'tests', 'ref_im')
 
 def rnd_str(l: int = 8) -> str:
     ret = ''
