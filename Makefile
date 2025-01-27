@@ -41,4 +41,3 @@ venv:
 clean:
 	$(rm) *.tar.gz *.egg-info dist/ deb_dist/ \
 	*.deb *.whl venv/ build/
-
