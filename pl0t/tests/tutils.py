@@ -26,7 +26,7 @@ def save(pfx: str, dest_path: str = None,
          rand_str_prefix: bool = True) -> None:
     if dest_path is None:
         # tmp dir is in ../../tmp
-        dest_path = tmp_path
+        dest_path = ref_im_path
         if not os.path.exists(dest_path):
             os.mkdir(dest_path)
     if rand_str_prefix: 
