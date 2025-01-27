@@ -111,7 +111,7 @@ def __panel(cat, *data, ylab, xlab=None, gtype='scat', col_nb=3, **kwargs):
     if len(dat[cat].unique()) < 2:
         raise SyntaxError('Not enough categories to create panel (>= 2 needed)')
     if col_nb > len(dat[cat].unique()):
-        warn('Only one line will be plotted')
+        print('WARN: only one line will be plotted')
     ret = sns.FacetGrid(dat, col=cat, col_wrap=col_nb)
     if not 'hue' in kwargs:
         ret.map_dataframe(gfunc, data=dat, x=xlab, y=ylab)
@@ -346,7 +346,7 @@ def get_ax_dim(ix, kwargs):
             ret = ax[ix] 
         else:
             raise SyntaxError(input_err_msg)
-    print(ix, ret)
+#    print(ix, ret)
     return None
     #    return ret
 
@@ -389,7 +389,7 @@ def save(fname=None, dest_dir=None, dpi=out_dpi, ext='svg', transparent=False):
         plt.savefig(dest_path, dpi=dpi, transparent=False)     
 
 def _val_arg_ignored(data_type):
-    warn('%s: val argument not used')
+    pass
 
 
 def _is_list_of_scalars(lst):
@@ -496,7 +496,7 @@ def __prep_data(data, cat = None, val = None):
         raise TypeError(empty_msg)
     if _is_dict(data):
         if cat is not None or val is not None:
-            warn('cat and args values ignored for dict')
+            print('WARN: cat and args values ignored for dict')
         ret = _prep_dict(data, cat = cat, val = val)
     elif _is_df(data):
         if cat is not None and val is not None:
@@ -519,7 +519,7 @@ def __prep_data(data, cat = None, val = None):
         if (cat is not None) and (len(data) != len(cat)):
             raise SyntaxError('cat must have an equal lengh to data for list of lists')
         if val is not None:
-            warn('val is not used for list of lists')
+            print('WARN: val is not used for list of lists')
         ret  = _prep_listoflists(data, cat = cat, val = val)
     return ret
 
@@ -566,9 +566,9 @@ def _prep_short_df(data, cat, val):
 def _prep_listoflists(data, cat, val):
     ret = {}
     if cat is None:
-        warn('No cat provided, using monotonic labels instead')
+        print('WARN: no cat provided, using monotonic labels instead')
         cat = [str(i) for i in range(len(data)) ]
-    warn('list of lists: cat data used to label lists with no guaranteed order')
+    print('WARN: list of lists: cat data used to label lists with no guaranteed order')
     max_len = 0
     for l in data:
         try:
