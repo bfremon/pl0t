@@ -34,6 +34,9 @@ venv:
 	virtualenv venv
 	. ./venv/bin/activate
 
+datum: venv
+	. ./venv/bin/activate
+	$(vpy) -c "import os; import pl0t.tests.tutils as tu; datum_path = os.path.join(os.getcwd(), 'pl0t', 'tests', 'datum'); tu.gen_datum_labels(os.path.join(datum_path, 'labels.txt')); tu.gen_datum_data(os.path.join(datum_path, 'df.csv'))"
 
 .PHONY: clean whl venv deb
 
