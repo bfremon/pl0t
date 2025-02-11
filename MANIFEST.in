@@ -1,0 +1,4 @@
+include pl0t pl0t/tests/datum/*.png
+include pl0t pl0t/tests/datum/df.csv
+include pl0t pl0t/tests/datum/labels.txt
+include pl0t pl0t/tests/empty.txt
