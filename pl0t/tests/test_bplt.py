@@ -1,50 +1,21 @@
 #!/usr/bin/env python3
 
-import numpy as np
-import pandas as pd
-import seaborn as sns
+from __future__ import annotations
+import unittest
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 from pl0t import *
 from . import tutils as tu
 
-f_prefix = 'test_bplt-'
+class test_bplot(unittest.TestCase):
+    def setUp(self) -> None:
+        self.data = tu.read_datum_data(kind = 'df')
 
-b_dat = []
-plots_n = 20
-vals_n = 10**2
-mu = 20
-std = 5
-
-vals = [ tu.gen_norm_vec(mu, std, vals_n)
-         for i in range(plots_n) ]
-
-dat = {'type': [], 'cat': [], 'val': [], 'hue_cat': []}
-
-for i in range(plots_n):
-    cat = tu.rnd_str(8)
-    dat['type'].extend([ j for j in range(vals_n) ])
-    dat['cat'].extend([ cat for j in range(vals_n) ])
-    dat['val'].extend(vals[i])
-    
-hue_cat_labs = ['A', 'B', 'C', 'D', 'E']
-hue_cat_len = int(plots_n * vals_n / len(hue_cat_labs))
-for c in hue_cat_labs:
-    dat['hue_cat'].extend([ c for i in range(hue_cat_len) ])
-
-df = pd.DataFrame(dat)
-
-title('Boxplot title')
-bplt('cat', 'val', df)
-tu.save(f_prefix)
-#shw()
-cls()
-
-r = bplt('cat', 'val', df)
-r.set(xscale='log')
-tu.save(f_prefix + 'ret_x_scale_log')
-clr()
-
-# r = bplt('cat', 'val', df, hue = 'hue_cat')
-# r.set(xscale='log')
-# tu.save(f_prefix + 'ret_x_scale_log-hue')
-# clr()
-
+        
+    def test_bplt_std(self) -> None: 
+        im_id = 'bplt_std'
+        fig, ax = plt.subplots()
+        title('Boxplot title')
+        bplt('cat', 'val', self.data)        
+        self.assertTrue(tu.eval_im(fig, im_id))
