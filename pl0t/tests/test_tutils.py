@@ -20,22 +20,39 @@ class test_tutils(unittest.TestCase):
                                                    'tests', '__init__.py')))
 
         def test_eval_im(self):
+            ref_im_id = 'tutils_eval_im'
+            ref_im_path = os.path.join(tutils.datum_path,
+                                   '%s.png' % ref_im_id)
+            if os.path.exists(ref_im_path):
+                    os.unlink(ref_im_path)
+
             fig, ax = plt.subplots()
             plt_data = [ i for i in range(10) ]
             scat(x = plt_data, y = plt_data)
-            ref_im_id = 'tutils_eval_im'
+            # Idempotent: fig is saved and compared to itself
             tutils.save(ref_im_id, dest_path = tutils.datum_path,
                  rand_str_prefix = False)
             self.assertTrue(tutils.eval_im(fig, ref_im_id, profile = False))
             plt.close()
 
-            
+           
             fig, ax = plt.subplots()
+            # 0 not i in plt_data!
             plt_data = [ 0 for i in range(10) ]
             scat(x = plt_data, y = plt_data)
             ref_im_id = 'tutils_eval_im'
+            # fig is compared to datum
             self.assertFalse(tutils.eval_im(fig, ref_im_id, profile = False))
-
+            plt.close()
+            
+            fig, ax = plt.subplots()
+            plt_data = [ 0 for i in range(100) ]
+            scat(x = plt_data, y = plt_data)
+            ref_im_id = 'tutils_eval_im'
+            # fig is compared to datum
+            self.assertFalse(tutils.eval_im(fig, ref_im_id, profile = False))
+            plt.close()
+            
             ref_im_id = 'tutils_eval_im_create'
             self.assertTrue(tutils.eval_im(fig, ref_im_id, profile = False))
             plt.close()

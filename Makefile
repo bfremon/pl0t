@@ -10,6 +10,7 @@ vpip3 = venv/bin/pip3
 deb_pkgs = dh-python python3-stdeb python3-virtualenv
 
 test:
+	$(rm) pl0t/tests/tmp/*.svg pl0t/tests/tmp/*.png
 	$(py) -m unittest discover
 
 

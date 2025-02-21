@@ -73,7 +73,7 @@ def save(pfx: str, dest_path: str = None,
          rand_str_prefix: bool = True) -> None:
     if dest_path is None:
         # tmp dir is in ../../tmp
-        dest_path = datum_path
+        dest_path = tmp_path
         if not os.path.exists(dest_path):
             os.mkdir(dest_path)
     if rand_str_prefix: 
@@ -132,7 +132,8 @@ def get_im_csum(im_id: str, tested_im_path: str,
             fname = bs.split('.')[:-1][0]
             ext = bs.split('.')[-1]
             if ext in allowed_exts and pfx in fname:
-                im_csums[im_id] = _chksum(f_path)
+                im_csums[fname] = _chksum(f_path)
+                #  print('-> %s: % s' % (fname, im_csums[fname]))
     try:
         ret = im_csums[im_id]
     except KeyError:
@@ -143,6 +144,7 @@ def get_im_csum(im_id: str, tested_im_path: str,
             datum_im_path = os.path.join(datum_path, '%s.png' % im_id)
             shutil.copy(tested_im_path, datum_im_path)
             ret = get_im_csum(im_id, tested_im_path)
+#    print(im_csums)
     return ret
 
 
@@ -165,7 +167,7 @@ def eval_im(fig: matplotlib.figure, im_id: str,
         end_t = time.time()
         print('%1.2fs' % (end_t - start_t))
     ref_csum = get_im_csum(im_id, out_path)
-    if not cmp_csum(ref_csum, f_path, dbg = True):
+    if not cmp_csum(ref_csum, f_path, dbg = False):
         status = 'N' + status
         ret = False
     if inline:
