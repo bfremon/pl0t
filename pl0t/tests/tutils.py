@@ -70,17 +70,17 @@ def _gen_vals(self) -> dict:
 
             
 def save(pfx: str, dest_path: str = None,
-         rand_str_prefix: bool = True) -> None:
+         rand_str_prefix: bool = True, dpi:int = 150) -> None:
     if dest_path is None:
         # tmp dir is in ../../tmp
         dest_path = tmp_path
         if not os.path.exists(dest_path):
             os.mkdir(dest_path)
     if rand_str_prefix: 
-        pl0t.save(fname = os.path.join(dest_path, pfx + rnd_str()))
+        pl0t.save(fname = os.path.join(dest_path, pfx + rnd_str()), dpi = dpi)
     else:
         pl0t.save(fname = os.path.join(dest_path, '%s.png' % pfx),
-                  ext = 'png')
+                  ext = 'png', dpi = dpi)
         
     
 def gen_norm_vec(mu: float, std: float, n_vals: int) -> list:
@@ -150,7 +150,7 @@ def get_im_csum(im_id: str, tested_im_path: str,
 
 def eval_im(fig: matplotlib.figure, im_id: str,
             tmp_dir: str = tmp_path, 
-            dpi: int = 100, inline: bool =  False, profile: bool = False) -> bool:
+            dpi: int = 150, inline: bool =  False, profile: bool = False) -> bool:
     ''' Compare matplotlib fig to the datum image pointed by im_id.
     temp copy of fig is written into tmp_dir with dpi set to dpi
     '''
@@ -162,7 +162,7 @@ def eval_im(fig: matplotlib.figure, im_id: str,
     #    fig.savefig(out_path, dpi = dpi)
     if profile:
         start_t = time.time()
-    save(im_id, dest_path = tmp_dir, rand_str_prefix = False)
+    save(im_id, dest_path = tmp_dir, rand_str_prefix = False, dpi = dpi)
     if profile:
         end_t = time.time()
         print('%1.2fs' % (end_t - start_t))
