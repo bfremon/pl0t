@@ -130,6 +130,10 @@ class test_pl0t(unittest.TestCase):
         #self.assertTrue(sorted(res['cat']).unique() == 'x')
         self.assertTrue(sorted(res['val']) == sorted(x))
 
+        x = [1, 2, 3]
+        res = pl0t._prep_data(x)
+        print(res)
+        self.assertTrue(sorted(res['val']) == sorted(x))
 
     def tearDown(self):
         if os.listdir(self.g_path) != '':
