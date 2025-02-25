@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from __future__ import annotations
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -10,6 +11,8 @@ import os
 
 palette = 'deep'
 out_dpi = 1200
+boxplot_orientation = 'vertical'
+default_cat_name = 'no cat_' # '_' prohibited
 
 def hist(*data, stat='count', palette=palette, **kwargs):
     '''
@@ -44,7 +47,7 @@ def ind(*data, cat=None, val=None, palette=palette, **kwargs):
     return ret
 
 
-def bplt(cat, val, *data, **kwargs):
+def bplt(*data: list, cat:str = None, val:str = None, **kwargs) -> matplotlib.Axes:
     '''
     Wrapper for seaborn boxplot func:
     cat: category column to be used
@@ -52,8 +55,9 @@ def bplt(cat, val, *data, **kwargs):
     *data: data dict or DataFrame 
     **kwargs: any complementary options passed to catplot
     '''
-    dat = _prep_data(*data, cat=cat, val=val)
-    ret = sns.boxplot(data=dat, y='cat', x='val', **kwargs)
+    ret = None
+    dat = _prep_data(*data, cat = cat, val = val)
+    ret = sns.boxplot(data = dat, y = 'cat', x = 'val', **kwargs)
     return ret
 
 
@@ -410,14 +414,20 @@ def _is_list_of_scalars(lst):
     return ret
 
 
-def _get_var_name(var):
+def _get_var_name(var: str, dbg: bool = False) -> str:
+    '''
+    Return litteral name of var from globals when cat is not specified
+    '''
     ret = None
     globals_dict = globals()
     for k in globals_dict:
         if var is globals_dict[k]:
-            ret = k
+            ret = str(k)
             break
-    return str(k)
+    if dbg:
+        print('%sDBG: _get_var_name() - key %s, value %s'
+              % (os.linesep, k, globals_dict[k]))
+    return ret
 
 
 def _is_1D_vec(vec):
@@ -431,7 +441,17 @@ def _is_1D_vec(vec):
     return ret
 
 
-def _prep_data(*data, cat = None, val = None):
+def _set_no_cat_arg(dat): 
+    ''' Set series_name when cat arg is None'''
+    if default_cat_name:
+        ret = default_cat_name
+    else:
+        ret = _get_var_name(dat)
+    print('WARN: using %s as default cat' % ret)
+    return ret
+
+
+def _prep_data(*data, cat:str = None, val:str = None, dbg: bool = True) -> pd.DataFrame:
     '''*data must hold only 1D scalars arrays'''
     dat_idx = 0
     only_1D_scalars_msg = 'Only multiple 1D args are allowed'
@@ -450,9 +470,12 @@ def _prep_data(*data, cat = None, val = None):
         concat_data  = {}
         for dat in data:
             if cat is None:
-                series_name = _get_var_name(dat)
+                series_name = _set_no_cat_arg(dat)
             else:
                 series_name = cat[cat_idx]
+            if dbg:
+                print('DBG: _prep_data(): series_name %s (cat_idx %i)'
+                      % (series_name, cat_idx))
             if len(dat) < max_len:
                 pad_len = max_len - len(dat)
                 padded_dat = dat  + [ np.nan for i in range(pad_len) ]
@@ -466,10 +489,12 @@ def _prep_data(*data, cat = None, val = None):
         ret = __prep_data(concat_data, cat = cat, val = val)
     else:
         ret  = __prep_data(data[0], cat = cat, val = val)
+    if dbg:
+        print('DBG: _prep_data() ret:%s%s' % (os.linesep, ret))
     return ret 
 
 
-def __prep_data(data, cat = None, val = None):
+def __prep_data(data:Union[ ...], cat: str = None, val:str = None, dbg:bool = True) -> pd.DataFrame:
     '''
     Format data __singleton__ for plotting using for input such as:
     - A dictionnary of lists (padded with Nan if necessary) with keys as categories (val & cat args  ignored
@@ -505,9 +530,11 @@ def __prep_data(data, cat = None, val = None):
             ret = _prep_short_df(data, cat = cat, val = val)
     elif _is_1D_vec(data):
         if cat is None:
-            series_name = _get_var_name(data)
+            series_name = _set_no_cat_arg(data)
         else:
-            series_name = cat[0]
+            series_name = cat
+        if dbg:
+            print('DBG: __prep_data(): 1D vec series_name %s' % series_name)
         ret = pd.Series(data, dtype = 'float', name = series_name)
         ret = pd.DataFrame(ret).melt()
         ret.rename(columns = {'value': 'val', 'variable': 'cat'},
@@ -580,7 +607,7 @@ def _prep_listoflists(data, cat, val):
             max_len = len(l)
     for i in range(len(data)):
         cur_cat = cat[i]                   
-        if cur_cat  in ret:
+        if cur_cat in ret:
             raise ValueError('duplicate %s category' % cur_cat)
         if len(data[i]) < max_len:
             pad_len = max_len - len(data[i])
