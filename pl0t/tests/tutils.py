@@ -56,10 +56,13 @@ def gen_datum_data(f_path: str) -> None:
     pandas.DataFrame(out).to_csv(f_path, sep = ';')
 
     
-def read_datum_data(kind: str) -> Union[ pd.DataFrame]:
+def read_datum_data(kind: str) -> Union[ pd.DataFrame, pd.Series ]:
     ret = None
     if kind == 'df':
         ret = pandas.read_csv(os.path.join(datum_path, 'df.csv'), sep = ';')
+    elif kind == 'series':
+        ret = pandas.read_csv(os.path.join(datum_path, 'df.csv'), sep = ';')
+        ret = ret['val']
     else:
         raise SyntaxError('Unknown datum type %s' % kind)
     return ret

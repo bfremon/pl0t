@@ -77,8 +77,14 @@ class test_tutils(unittest.TestCase):
             tutils.gen_datum_data(out_path)
             out_data = pd.read_csv(out_path, sep = ';', index_col = [0])
             self.assertTrue(list(out_data.columns) == ['type', 'cat', 'val', 'hue_cat'])
-            
-                              
+
+
+        def test_read_datum_data(self):
+                self.assertTrue(isinstance(tutils.read_datum_data('df'), pd.DataFrame))
+                self.assertTrue(isinstance(tutils.read_datum_data('series'), pd.Series))
+                self.assertRaises(SyntaxError, tutils.read_datum_data, 'prout')
+
+                
         def tearDown(self):
             for f in os.listdir(tutils.tmp_path):
                 os.unlink(os.path.join(tutils.tmp_path, f))
