@@ -82,6 +82,11 @@ class test_tutils(unittest.TestCase):
         def test_read_datum_data(self):
                 self.assertTrue(isinstance(tutils.read_datum_data('df'), pd.DataFrame))
                 self.assertTrue(isinstance(tutils.read_datum_data('series'), pd.Series))
+                out = tutils.read_datum_data('listoflists')
+                print(out)
+                self.assertTrue(isinstance(out, list))
+                for l in out: 
+                        self.assertTrue(isinstance(l, list))
                 self.assertRaises(SyntaxError, tutils.read_datum_data, 'prout')
 
                 

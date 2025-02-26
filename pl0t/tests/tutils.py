@@ -56,13 +56,22 @@ def gen_datum_data(f_path: str) -> None:
     pandas.DataFrame(out).to_csv(f_path, sep = ';')
 
     
-def read_datum_data(kind: str) -> Union[ pd.DataFrame, pd.Series ]:
+def gen_rand_list(nb: int, max:float = 100) -> list:
+    ret = [ random.random() * max for i in range(nb) ]
+    return ret
+
+    
+def read_datum_data(kind: str) -> Union[ pd.DataFrame, pd.Series, list ]:
     ret = None
     if kind == 'df':
         ret = pandas.read_csv(os.path.join(datum_path, 'df.csv'), sep = ';')
     elif kind == 'series':
         ret = pandas.read_csv(os.path.join(datum_path, 'df.csv'), sep = ';')
         ret = ret['val']
+    elif kind == 'listoflists':
+        ret = []
+        for i in range(10):
+            ret.append(gen_rand_list(100))
     else:
         raise SyntaxError('Unknown datum type %s' % kind)
     return ret
