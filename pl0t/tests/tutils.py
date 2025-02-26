@@ -61,7 +61,7 @@ def gen_rand_list(nb: int, max:float = 100) -> list:
     return ret
 
     
-def read_datum_data(kind: str) -> Union[ pd.DataFrame, pd.Series, list ]:
+def read_datum_data(kind: str, dbg: bool = False) -> Union[ pd.DataFrame, pd.Series, list ]:
     ret = None
     if kind == 'df':
         ret = pandas.read_csv(os.path.join(datum_path, 'df.csv'), sep = ';')
@@ -71,7 +71,14 @@ def read_datum_data(kind: str) -> Union[ pd.DataFrame, pd.Series, list ]:
     elif kind == 'listoflists':
         ret = []
         for i in range(10):
-            ret.append(gen_rand_list(100))
+            ret.append(gen_rand_list(5))
+        if dbg:
+            print('DBG read_datum_data(): listoflists%s%s' % (os.linesep, ret))
+    elif kind == 'labels':
+        ret = []
+        with open(os.path.join(datum_path, 'labels.txt'), 'r') as f_r:
+            for l in f_r.readlines():
+                ret += [ l.replace(os.linesep, '') ]
     else:
         raise SyntaxError('Unknown datum type %s' % kind)
     return ret
