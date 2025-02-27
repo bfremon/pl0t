@@ -56,22 +56,20 @@ def gen_datum_data(f_path: str) -> None:
     pandas.DataFrame(out).to_csv(f_path, sep = ';')
 
     
-def gen_rand_list(nb: int, max:float = 100) -> list:
-    ret = [ random.random() * max for i in range(nb) ]
-    return ret
-
-    
 def read_datum_data(kind: str, dbg: bool = False) -> Union[ pd.DataFrame, pd.Series, list ]:
     ret = None
+    df_data = pandas.read_csv(os.path.join(datum_path, 'df.csv'), sep = ';')
     if kind == 'df':
-        ret = pandas.read_csv(os.path.join(datum_path, 'df.csv'), sep = ';')
+        ret = df_data
     elif kind == 'series':
         ret = pandas.read_csv(os.path.join(datum_path, 'df.csv'), sep = ';')
-        ret = ret['val']
+        ret = df_data['val']
     elif kind == 'listoflists':
         ret = []
-        for i in range(10):
-            ret.append(gen_rand_list(5))
+        for cat in df_data.cat.unique():
+            cat_data = df_data [ df_data.cat == cat ]
+            x = list(cat_data['val'].iloc[:10])
+            ret.append(x)
         if dbg:
             print('DBG read_datum_data(): listoflists%s%s' % (os.linesep, ret))
     elif kind == 'labels':
