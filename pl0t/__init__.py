@@ -441,6 +441,17 @@ def _is_1D_vec(vec):
     return ret
 
 
+def _is_list_of_lists(vec):
+    ret = True
+    if isinstance(vec, list):
+        for v in vec:
+            if not isinstance(v, list):
+                ret = False
+    else:
+        ret = False
+    return ret
+
+
 def _set_no_cat_arg(dat): 
     ''' Set series_name when cat arg is None'''
     if default_cat_name:
@@ -451,7 +462,7 @@ def _set_no_cat_arg(dat):
     return ret
 
 
-def _prep_data(*data, cat:str = None, val:str = None, dbg: bool = True) -> pd.DataFrame:
+def _prep_data(*data, cat:str = None, val:str = None, dbg: bool = False) -> pd.DataFrame:
     '''*data must hold only 1D scalars arrays'''
     dat_idx = 0
     only_1D_scalars_msg = 'Only multiple 1D args are allowed'
@@ -528,7 +539,7 @@ def __prep_data(data:Union[ ...], cat: str = None, val:str = None, dbg:bool = Tr
             ret = _prep_long_df(data, cat = cat, val = val)
         elif cat is None and val is None:
             ret = _prep_short_df(data, cat = cat, val = val)
-    elif _is_1D_vec(data):
+    elif _is_1D_vec(data) and not _is_list_of_lists(data):
         if cat is None:
             series_name = _set_no_cat_arg(data)
         else:
@@ -539,15 +550,19 @@ def __prep_data(data:Union[ ...], cat: str = None, val:str = None, dbg:bool = Tr
         ret = pd.DataFrame(ret).melt()
         ret.rename(columns = {'value': 'val', 'variable': 'cat'},
                    inplace = True)
+        if dbg:
+            print('DBG: __prep_data(): 1D vec ret%s%s' % (os.linesep, ret))
     else:
         # list of lists
         if not _is_list_of_scalars(data):
             raise SyntaxError('data should be only composed of scalar lists')
         if (cat is not None) and (len(data) != len(cat)):
-            raise SyntaxError('cat must have an equal lengh to data for list of lists')
+            raise SyntaxError('cat must have an equal lenght to data for list of lists')
         if val is not None:
             print('WARN: val is not used for list of lists')
         ret  = _prep_listoflists(data, cat = cat, val = val)
+        if dbg:
+            print('DBG: __prep_data(): list of lists%s%s' % (os.linesep, ret))
     return ret
 
 
